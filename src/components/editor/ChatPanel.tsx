@@ -194,7 +194,7 @@ export function ChatPanel({ onHighlightChange }: ChatPanelProps) {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={`Type @hook, @body, @outro, @text, or @image to edit...`}
+            placeholder="e.g. @hook make it more catchy"
             className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground pr-12"
           />
           <button
