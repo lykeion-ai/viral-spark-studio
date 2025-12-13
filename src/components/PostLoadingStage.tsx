@@ -37,7 +37,7 @@ const platformConfig = {
   },
 };
 
-type AnimationPhase = 'cycling' | 'analyzing' | 'selecting' | 'arranging';
+type AnimationPhase = 'cycling' | 'analyzing' | 'selecting' | 'arranging' | 'showcasing' | 'fading';
 
 export function PostLoadingStage({ platform }: PostLoadingStageProps) {
   const [phase, setPhase] = useState<AnimationPhase>('cycling');
@@ -177,7 +177,6 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     // Phase 1: Cycling (0-2.8s) - allows one complete cycle to finish
     const timer1 = setTimeout(() => {
       setPhase('analyzing');
-      // Keep the posts that are already on screen
     }, 2800);
 
     // Phase 2: Analyzing (2.8-4.3s)
@@ -189,34 +188,56 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
       });
     }, 4300);
 
-    // Phase 3: Selecting (4.3-6.1s)
+    // Phase 3: Selecting complete, fade out non-selected (4.3-6.1s)
     const timer3 = setTimeout(() => {
       setPhase('arranging');
       setCurrentlySelecting(-1);
     }, 6100);
 
-    // Phase 4: Arranging continues for longer (6.1-8.8s = 2.7s to view)
+    // Phase 4: Showcasing - move selected to center (6.8s)
+    const timer4 = setTimeout(() => {
+      setPhase('showcasing');
+    }, 6800);
+
+    // Phase 5: Fading - fade out selected posts (8.5s)
+    const timer5 = setTimeout(() => {
+      setPhase('fading');
+    }, 8500);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
+      clearTimeout(timer4);
+      clearTimeout(timer5);
     };
   }, []);
 
   const renderPost = (post: SocialPost, index: number) => {
     const isSelected = selectedIndices.includes(index);
     const isCurrentlySelecting = currentlySelecting === index;
-    const shouldFadeOut = phase === 'arranging' && !isSelected;
-    const shouldFadeOutSelected = phase === 'arranging' && isSelected;
     const isDimmed = phase === 'selecting' && !isSelected;
     const isAnimating = animatingIndices.has(index);
+    
+    // Phase-based visibility
+    const shouldHide = (phase === 'arranging' || phase === 'showcasing' || phase === 'fading') && !isSelected;
+    const shouldFadeOutFinal = phase === 'fading' && isSelected;
 
     const PostComponent = {
       linkedin: LinkedInPost,
       twitter: TwitterPost,
       instagram: InstagramPost,
     }[platform];
+
+    // Don't render non-selected posts after arranging phase starts
+    if (shouldHide) {
+      return (
+        <div
+          key={`${post.id}-${index}`}
+          className="transition-all duration-500 ease-out opacity-0 scale-90 pointer-events-none"
+        />
+      );
+    }
 
     return (
       <div
@@ -226,13 +247,8 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
         } ${
           isCurrentlySelecting ? `ring-4 ${config.circleColor} scale-105 shadow-2xl` : ''
         } ${
-          shouldFadeOut ? 'opacity-0 scale-95 pointer-events-none' : ''
-        } ${
-          shouldFadeOutSelected ? 'opacity-0 transition-opacity duration-1000 delay-500' : 'opacity-100'
+          shouldFadeOutFinal ? 'opacity-0 scale-95' : 'opacity-100'
         }`}
-        style={{
-          transitionDelay: shouldFadeOut ? `${index * 30}ms` : undefined,
-        }}
       >
         <PostComponent
           post={post}
@@ -265,9 +281,16 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
           icon: <Sparkles className="w-5 h-5 text-primary animate-pulse" />,
         };
       case 'arranging':
+      case 'showcasing':
         return {
           title: 'Extracting viral patterns',
           subtitle: `Analyzing key elements from ${config.name} posts...`,
+          icon: <Sparkles className="w-5 h-5 text-primary" />,
+        };
+      case 'fading':
+        return {
+          title: 'Patterns extracted',
+          subtitle: `Moving to next platform...`,
           icon: <Sparkles className="w-5 h-5 text-primary" />,
         };
     }
@@ -291,19 +314,44 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
         </p>
       </div>
 
-      {/* Posts Grid or Row */}
+      {/* Posts Grid - transforms to centered row when showcasing */}
       <div
-        className={`transition-all duration-1000 ease-in-out w-full grid gap-3 max-w-6xl ${
-          platform === 'instagram'
-            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-            : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+        className={`transition-all duration-700 ease-in-out w-full max-w-6xl ${
+          phase === 'showcasing' || phase === 'fading'
+            ? 'flex justify-center items-center gap-4'
+            : `grid gap-3 ${
+                platform === 'instagram'
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+              }`
         }`}
         style={{
           transform: platform === 'instagram' ? 'scale(0.6)' : 'scale(0.75)',
-          transformOrigin: 'top center',
+          transformOrigin: 'center center',
         }}
       >
-        {displayedPosts.map((post, index) => renderPost(post, index))}
+        {(phase === 'showcasing' || phase === 'fading')
+          ? selectedIndices.map((selectedIndex) => {
+              const post = displayedPosts[selectedIndex];
+              if (!post) return null;
+              const PostComponent = {
+                linkedin: LinkedInPost,
+                twitter: TwitterPost,
+                instagram: InstagramPost,
+              }[platform];
+              return (
+                <div
+                  key={`selected-${post.id}`}
+                  className={`transition-all duration-700 ease-in-out ${
+                    phase === 'fading' ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                  }`}
+                >
+                  <PostComponent post={post} isSelected={false} isDimmed={false} compact />
+                </div>
+              );
+            })
+          : displayedPosts.map((post, index) => renderPost(post, index))
+        }
       </div>
 
       {/* Progress indicator */}
