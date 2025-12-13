@@ -1,6 +1,45 @@
-import { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Send } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Upload, X, Send, Linkedin, Instagram } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
+
+const platforms = [
+  { name: 'LinkedIn', icon: Linkedin, color: 'text-[#0A66C2]' },
+  { name: 'X.com', icon: () => <span className="text-foreground font-bold">𝕏</span>, color: '' },
+  { name: 'Instagram', icon: Instagram, color: 'text-[#E4405F]' },
+];
+
+function useTypingAnimation() {
+  const [displayText, setDisplayText] = useState('');
+  const [platformIndex, setPlatformIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentPlatform = platforms[platformIndex].name;
+    const typingSpeed = isDeleting ? 50 : 100;
+    const pauseTime = 2000;
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (displayText.length < currentPlatform.length) {
+          setDisplayText(currentPlatform.slice(0, displayText.length + 1));
+        } else {
+          setTimeout(() => setIsDeleting(true), pauseTime);
+        }
+      } else {
+        if (displayText.length > 0) {
+          setDisplayText(displayText.slice(0, -1));
+        } else {
+          setIsDeleting(false);
+          setPlatformIndex((prev) => (prev + 1) % platforms.length);
+        }
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [displayText, isDeleting, platformIndex]);
+
+  return { displayText, platformIndex };
+}
 export function InputStage() {
   const {
     productData,
@@ -57,10 +96,18 @@ export function InputStage() {
       startGeneration();
     }
   };
+  const { displayText, platformIndex } = useTypingAnimation();
+  const CurrentIcon = platforms[platformIndex].icon;
+
   return <main className="max-w-4xl mx-auto px-6 py-20">
       <div className="text-center mb-12">
         <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-4 leading-tight">
-          Create viral posts
+          Generate a viral post for{' '}
+          <span className={`inline-flex items-center gap-2 ${platforms[platformIndex].color}`}>
+            {displayText}
+            <CurrentIcon className="w-12 h-12 inline-block" />
+            <span className="animate-pulse">|</span>
+          </span>
         </h1>
         <p className="text-xl text-muted-foreground">
           AI-powered content for LinkedIn, X, and Instagram
@@ -77,36 +124,38 @@ export function InputStage() {
         </div>
 
         {/* Image Upload Area */}
-        <div onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 ${isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-secondary/50'}`}>
+        <div onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 ${isDragging ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50 hover:bg-secondary/50'}`}>
           <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileSelect} className="hidden" />
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
-              <Upload className="w-5 h-5 text-muted-foreground" />
+          
+          {productData.imagePreviews.length === 0 ? (
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center">
+                <Upload className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="text-foreground font-medium">Upload product images</p>
+                <p className="text-sm text-muted-foreground mt-1">Drag and drop or click to browse</p>
+              </div>
             </div>
-            <div>
-              <p className="text-foreground font-medium">Upload product images</p>
-              <p className="text-sm text-muted-foreground mt-1">Drag and drop or click to browse</p>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Upload className="w-4 h-4" />
+                <p className="text-sm">Click or drag to add more images</p>
+              </div>
+              <div className="flex flex-wrap justify-center gap-3" onClick={(e) => e.stopPropagation()}>
+                {productData.imagePreviews.map((preview, index) => (
+                  <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden group animate-fade-scale" style={{ animationDelay: `${index * 0.1}s` }}>
+                    <img src={preview} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
+                    <button onClick={(e) => { e.stopPropagation(); removeImage(index); }} className="absolute inset-0 bg-foreground/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <X className="w-5 h-5 text-background" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
-
-        {/* Image Previews */}
-        {productData.imagePreviews.length > 0 && <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {productData.imagePreviews.map((preview, index) => <div key={index} className="relative aspect-square rounded-xl overflow-hidden group animate-fade-scale" style={{
-          animationDelay: `${index * 0.1}s`
-        }}>
-                <img src={preview} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
-                <button onClick={e => {
-            e.stopPropagation();
-            removeImage(index);
-          }} className="absolute top-2 right-2 w-7 h-7 bg-foreground/80 rounded-full flex items-center justify-center text-background opacity-0 group-hover:opacity-100 transition-opacity hover:bg-foreground">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>)}
-          </div>}
-
-        {/* Suggestion Chips */}
-        
       </div>
     </main>;
 }
