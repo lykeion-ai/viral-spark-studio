@@ -170,7 +170,7 @@ export function ChatPanel({
       {/* Input */}
       <div className="p-4 border-t border-border">
         <div className="chat-input-wrapper !p-3 w-full">
-          <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="e.g. @hook make it more catchy" className="flex-1 w-full bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground pr-12" />
+          <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder={activePlatform === 'linkedin' ? "e.g. @hook make it more catchy" : "e.g. @text make it more engaging"} className="flex-1 w-full bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground pr-12" />
           <button onClick={handleSend} disabled={!input.trim()} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-primary rounded-lg flex items-center justify-center text-primary-foreground hover:opacity-90 transition-all disabled:opacity-40">
             <Send className="w-4 h-4" />
           </button>
