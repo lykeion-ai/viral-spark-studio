@@ -1,9 +1,10 @@
-import { User, Linkedin, Sparkles } from 'lucide-react';
+import { User, Linkedin } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { Platform } from '@/types';
 import { useLocation } from 'react-router-dom';
 import instagramIcon from '@/assets/instagram-icon.png';
 import xIcon from '@/assets/x-icon.png';
+import logo from '@/assets/logo.png';
 
 const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
   { id: 'linkedin', label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" /> },
@@ -25,9 +26,7 @@ export function Header() {
       <nav className="w-full py-2 flex justify-between items-center px-4">
         {/* Left - Logo */}
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="Marketly" className="w-8 h-8" />
           <span className="text-lg font-semibold text-foreground">Marketly</span>
         </div>
 
