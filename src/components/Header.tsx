@@ -1,0 +1,29 @@
+import { Sparkles } from 'lucide-react';
+
+export function Header() {
+  return (
+    <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <a href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
+          <Sparkles className="w-6 h-6 text-primary" />
+          Marketly
+        </a>
+        
+        <div className="hidden md:flex items-center gap-8">
+          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Features</a>
+          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Pricing</a>
+          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Examples</a>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2">
+            Log in
+          </button>
+          <button className="bg-foreground text-background px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+            Get started
+          </button>
+        </div>
+      </nav>
+    </header>
+  );
+}

@@ -1,12 +1,36 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useApp } from '@/contexts/AppContext';
+import { Header } from '@/components/Header';
+import { InputStage } from '@/components/InputStage';
+import { PostLoadingStage } from '@/components/PostLoadingStage';
+import { ImageLoadingStage } from '@/components/ImageLoadingStage';
+import { EditorStage } from '@/components/EditorStage';
 
 const Index = () => {
+  const { stage } = useApp();
+
+  const renderStage = () => {
+    switch (stage) {
+      case 'input':
+        return <InputStage />;
+      case 'linkedin-loading':
+        return <PostLoadingStage platform="linkedin" />;
+      case 'twitter-loading':
+        return <PostLoadingStage platform="twitter" />;
+      case 'instagram-loading':
+        return <PostLoadingStage platform="instagram" />;
+      case 'image-loading':
+        return <ImageLoadingStage />;
+      case 'editor':
+        return <EditorStage />;
+      default:
+        return <InputStage />;
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      {renderStage()}
     </div>
   );
 };
