@@ -37,10 +37,10 @@ const platformConfig = {
   },
 };
 
-type AnimationPhase = 'cycling' | 'analyzing' | 'selecting' | 'showcasing' | 'fading';
+type AnimationPhase = 'analyzing' | 'selecting' | 'showcasing' | 'fading';
 
 export function PostLoadingStage({ platform }: PostLoadingStageProps) {
-  const [phase, setPhase] = useState<AnimationPhase>('cycling');
+  const [phase, setPhase] = useState<AnimationPhase>('analyzing');
   const [currentlySelecting, setCurrentlySelecting] = useState<number>(-1);
   const [displayedPosts, setDisplayedPosts] = useState<SocialPost[]>([]);
 
@@ -60,9 +60,6 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     return indices.slice(0, 3);
   });
 
-  // Track which posts are currently animating
-  const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(new Set());
-
   // Initialize posts once
   const [postsInitialized, setPostsInitialized] = useState(false);
 
@@ -75,53 +72,28 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     }
   }, [allPosts, numPosts, postsInitialized]);
 
-  // Cycling animation - only visual, no post changes
+  // Phase transitions (removed cycling phase)
   useEffect(() => {
-    if (phase !== 'cycling' || !postsInitialized) return;
-
-    const animateCycle = () => {
-      const indicesToAnimate = Array.from({ length: numPosts }, (_, i) => i)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, Math.ceil(numPosts * 0.5));
-
-      setAnimatingIndices(new Set(indicesToAnimate));
-
-      setTimeout(() => {
-        setAnimatingIndices(new Set());
-      }, 800);
-    };
-
-    animateCycle();
-    const interval = setInterval(animateCycle, 1200);
-
-    return () => clearInterval(interval);
-  }, [phase, numPosts, postsInitialized]);
-
-  // Phase transitions
-  useEffect(() => {
-    const timer1 = setTimeout(() => setPhase('analyzing'), 2800);
-    
-    const timer2 = setTimeout(() => {
+    const timer1 = setTimeout(() => {
       setPhase('selecting');
       selectedIndices.forEach((index, i) => {
         setTimeout(() => setCurrentlySelecting(index), i * 500);
       });
-    }, 4300);
+    }, 1500);
 
     // Fade out non-selected, keep selected visible
-    const timer3 = setTimeout(() => {
+    const timer2 = setTimeout(() => {
       setPhase('showcasing');
       setCurrentlySelecting(-1);
-    }, 6000);
+    }, 3200);
 
     // Fade out selected posts
-    const timer4 = setTimeout(() => setPhase('fading'), 8000);
+    const timer3 = setTimeout(() => setPhase('fading'), 5200);
 
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
       clearTimeout(timer3);
-      clearTimeout(timer4);
     };
   }, [selectedIndices]);
 
@@ -129,7 +101,6 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     const isSelected = selectedIndices.includes(index);
     const isCurrentlySelecting = currentlySelecting === index;
     const isDimmed = phase === 'selecting' && !isSelected;
-    const isAnimating = animatingIndices.has(index);
     
     // Non-selected posts fade out during showcasing
     const shouldFadeOutNonSelected = (phase === 'showcasing' || phase === 'fading') && !isSelected;
@@ -150,7 +121,6 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
           ${shouldFadeOutNonSelected ? 'opacity-0 pointer-events-none' : ''}
           ${shouldFadeOutSelected ? 'opacity-0' : ''}
           ${!shouldFadeOutNonSelected && !shouldFadeOutSelected ? 'opacity-100' : ''}
-          ${phase === 'cycling' && isAnimating ? 'shadow-lg' : ''}
         `}
       >
         <PostComponent
@@ -165,13 +135,12 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
 
   const getPhaseMessage = () => {
     switch (phase) {
-      case 'cycling':
-        return {
-          title: 'Finding top viral posts',
-          subtitle: `Scanning ${config.name} for high-engagement content...`,
-          icon: <TrendingUp className="w-5 h-5 animate-pulse" />,
-        };
       case 'analyzing':
+        return {
+          title: 'Analyzing viral posts',
+          subtitle: 'Evaluating engagement metrics and content patterns...',
+          icon: <Sparkles className="w-5 h-5 animate-spin" />,
+        };
         return {
           title: 'Analyzing viral posts',
           subtitle: 'Evaluating engagement metrics and content patterns...',
