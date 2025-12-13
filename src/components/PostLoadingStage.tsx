@@ -146,12 +146,12 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
       <div
         key={`${post.id}-${index}`}
         className={`
-          transition-all ease-out duration-700
-          ${shouldFadeOutNonSelected ? 'opacity-0 scale-95 pointer-events-none' : ''}
-          ${shouldFadeOutSelected ? 'opacity-0 scale-95' : ''}
+          transition-opacity ease-out duration-700
+          ${shouldFadeOutNonSelected ? 'opacity-0 pointer-events-none' : ''}
+          ${shouldFadeOutSelected ? 'opacity-0' : ''}
           ${!shouldFadeOutNonSelected && !shouldFadeOutSelected ? 'opacity-100' : ''}
-          ${phase === 'cycling' && isAnimating ? 'scale-[1.02] shadow-lg' : ''}
-          ${isCurrentlySelecting ? `ring-4 ${config.circleColor} scale-105 shadow-2xl z-20` : ''}
+          ${phase === 'cycling' && isAnimating ? 'shadow-lg' : ''}
+          ${isCurrentlySelecting ? `ring-4 ${config.circleColor} shadow-2xl` : ''}
         `}
       >
         <PostComponent
