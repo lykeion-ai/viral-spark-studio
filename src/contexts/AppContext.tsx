@@ -33,16 +33,16 @@ const [productData, setProductData] = useState<ProductData>({
     setStage('linkedin-loading');
 
     // Auto-progress through stages with new timing
-    // Each platform loading takes ~9s (2.8s cycling + 1.5s analyzing + 1.8s selecting + 2.7s arranging + 0.2s buffer)
+    // Each platform loading takes ~6s (1.5s analyzing + 1.7s selecting + 2s showcasing + 0.8s fading)
     let currentTime = 0;
 
-    currentTime += 9000; // LinkedIn loading
+    currentTime += 6000; // LinkedIn loading
     setTimeout(() => setStage('instagram-loading'), currentTime);
 
-    currentTime += 9000; // Instagram loading
+    currentTime += 6000; // Instagram loading
     setTimeout(() => setStage('twitter-loading'), currentTime);
 
-    currentTime += 9000; // Twitter loading
+    currentTime += 6000; // Twitter loading
     setTimeout(() => setStage('editor'), currentTime);
   };
 
