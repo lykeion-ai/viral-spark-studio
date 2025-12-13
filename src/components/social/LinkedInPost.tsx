@@ -37,7 +37,7 @@ export function LinkedInPost({ post, isSelected, isDimmed, compact }: LinkedInPo
       {/* Content */}
       <div className={`text-foreground ${compact ? 'text-xs' : 'text-sm'} space-y-2 mb-4`}>
         {post.content.hook && (
-          <p className="font-semibold">{post.content.hook}</p>
+          <p>{post.content.hook}</p>
         )}
         {post.content.body && (
           <p className="text-muted-foreground line-clamp-3">{post.content.body}</p>

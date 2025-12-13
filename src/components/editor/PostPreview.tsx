@@ -1,5 +1,6 @@
 import { useApp } from '@/contexts/AppContext';
 import { HighlightType } from '@/types';
+import pavleAvatar from '@/assets/pavle-avatar.png';
 
 interface PostPreviewProps {
   highlight: HighlightType;
@@ -22,17 +23,17 @@ export function PostPreview({ highlight }: PostPreviewProps) {
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         {/* LinkedIn Header */}
         <div className="p-4 flex items-start gap-3 border-b border-border">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/60" />
+          <img src={pavleAvatar} alt="Pavle Padjin" className="w-12 h-12 rounded-full object-cover" />
           <div>
-            <p className="font-semibold text-foreground">Your Brand</p>
-            <p className="text-sm text-muted-foreground">Company • Just now</p>
+            <p className="font-semibold text-foreground">Pavle Padjin</p>
+            <p className="text-sm text-muted-foreground">Founder • Just now</p>
           </div>
         </div>
 
         {/* Content */}
         <div className="p-4 space-y-4">
           <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'hook' ? highlightColors.hook : ''}`}>
-            <p className="font-semibold text-foreground text-lg">{post.hook}</p>
+            <p className="text-foreground text-lg">{post.hook}</p>
           </div>
           
           <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'body' ? highlightColors.body : ''}`}>
@@ -70,11 +71,11 @@ export function PostPreview({ highlight }: PostPreviewProps) {
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         {/* Twitter Header */}
         <div className="p-4 flex items-start gap-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-twitter to-twitter/60" />
+          <img src={pavleAvatar} alt="Pavle Padjin" className="w-12 h-12 rounded-full object-cover" />
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <p className="font-bold text-foreground">Your Brand</p>
-              <p className="text-muted-foreground text-sm">@yourbrand • 1m</p>
+              <p className="font-bold text-foreground">Pavle Padjin</p>
+              <p className="text-muted-foreground text-sm">@pavlepadjin • 1m</p>
             </div>
             
             {/* Content */}
@@ -112,11 +113,9 @@ export function PostPreview({ highlight }: PostPreviewProps) {
         {/* Instagram Header */}
         <div className="p-3 flex items-center gap-3">
           <div className="p-0.5 rounded-full bg-gradient-to-tr from-instagram-orange to-instagram-pink">
-            <div className="w-10 h-10 rounded-full bg-card p-0.5">
-              <div className="w-full h-full rounded-full bg-gradient-to-br from-instagram-pink to-instagram-orange" />
-            </div>
+            <img src={pavleAvatar} alt="Pavle Padjin" className="w-10 h-10 rounded-full object-cover border-2 border-card" />
           </div>
-          <p className="font-semibold text-foreground">yourbrand</p>
+          <p className="font-semibold text-foreground">pavlepadjin</p>
         </div>
 
         {/* Image */}
@@ -144,7 +143,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           {/* Caption */}
           <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'text' ? highlightColors.text : ''}`}>
             <p className="text-foreground text-sm">
-              <span className="font-semibold mr-1">yourbrand</span>
+              <span className="font-semibold mr-1">pavlepadjin</span>
               {post.text}
             </p>
           </div>
