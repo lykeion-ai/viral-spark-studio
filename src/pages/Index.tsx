@@ -1,12 +1,20 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { Header } from '@/components/Header';
 import { InputStage } from '@/components/InputStage';
 import { PostLoadingStage } from '@/components/PostLoadingStage';
 import { ImageLoadingStage } from '@/components/ImageLoadingStage';
-import { EditorStage } from '@/components/EditorStage';
 
 const Index = () => {
   const { stage } = useApp();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (stage === 'editor') {
+      navigate('/edit');
+    }
+  }, [stage, navigate]);
 
   const renderStage = () => {
     switch (stage) {
@@ -20,8 +28,6 @@ const Index = () => {
         return <PostLoadingStage platform="instagram" />;
       case 'image-loading':
         return <ImageLoadingStage />;
-      case 'editor':
-        return <EditorStage />;
       default:
         return <InputStage />;
     }
