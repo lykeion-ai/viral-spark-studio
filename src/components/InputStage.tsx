@@ -150,39 +150,36 @@ export function InputStage() {
         </div>
 
         {/* Platform Toggles */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-center gap-3">
           <button
             onClick={() => togglePlatform('linkedin')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+            className={`flex items-center justify-center w-10 h-10 rounded-full border transition-all ${
               productData.selectedPlatforms.includes('linkedin')
                 ? 'bg-[#0A66C2]/10 border-[#0A66C2] text-[#0A66C2]'
                 : 'border-border text-muted-foreground hover:border-muted-foreground'
             }`}
           >
-            <Linkedin className="w-4 h-4" />
-            <span className="text-sm font-medium">LinkedIn</span>
+            <Linkedin className="w-5 h-5" />
           </button>
           <button
             onClick={() => togglePlatform('twitter')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+            className={`flex items-center justify-center w-10 h-10 rounded-full border transition-all ${
               productData.selectedPlatforms.includes('twitter')
                 ? 'bg-foreground/10 border-foreground text-foreground'
                 : 'border-border text-muted-foreground hover:border-muted-foreground'
             }`}
           >
-            <span className="font-bold text-sm">𝕏</span>
-            <span className="text-sm font-medium">X</span>
+            <span className="font-bold text-base">𝕏</span>
           </button>
           <button
             onClick={() => togglePlatform('instagram')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+            className={`flex items-center justify-center w-10 h-10 rounded-full border transition-all ${
               productData.selectedPlatforms.includes('instagram')
                 ? 'bg-[#E4405F]/10 border-[#E4405F] text-[#E4405F]'
                 : 'border-border text-muted-foreground hover:border-muted-foreground'
             }`}
           >
-            <Instagram className="w-4 h-4" />
-            <span className="text-sm font-medium">Instagram</span>
+            <Instagram className="w-5 h-5" />
           </button>
         </div>
 
