@@ -3,9 +3,9 @@ import { Upload, X, Send, Linkedin, Instagram } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 
 const platforms = [
-  { name: 'LinkedIn', icon: Linkedin, color: 'text-[#0A66C2]' },
-  { name: 'X.com', icon: () => <span className="text-foreground font-bold">𝕏</span>, color: '' },
-  { name: 'Instagram', icon: Instagram, color: 'text-[#E4405F]' },
+  { name: 'LinkedIn', icon: Linkedin, color: 'text-[#0A66C2]', showText: true },
+  { name: 'X', icon: () => <span className="text-foreground font-bold text-5xl md:text-6xl">𝕏</span>, color: '', showText: false },
+  { name: 'Instagram', icon: Instagram, color: 'text-[#E4405F]', showText: true },
 ];
 
 function useTypingAnimation() {
@@ -105,9 +105,9 @@ export function InputStage() {
           Generate a viral post for
           <br />
           <span className={`inline-flex items-center justify-center gap-2 ${platforms[platformIndex].color}`}>
-            {displayText}
+            {platforms[platformIndex].showText ? displayText : null}
             <CurrentIcon className="w-12 h-12 inline-block" />
-            <span className="animate-pulse">|</span>
+            {platforms[platformIndex].showText && <span className="animate-pulse">|</span>}
           </span>
         </h1>
         <p className="text-xl text-muted-foreground">
