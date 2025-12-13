@@ -1,4 +1,5 @@
 import { SocialPost } from '@/types';
+import inceptionPostImage from '@/assets/inception-post.jpeg';
 
 const avatars = [
   'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
@@ -311,17 +312,17 @@ export const instagramPosts: SocialPost[] = [
 
 export const generatedPosts = {
   linkedin: {
-    hook: "🚀 We just launched something that's going to change the game.",
-    body: "After months of development, our team has created a product that solves a real problem. Here's why it matters: the industry has been doing things the old way for too long. Our approach is different—it's faster, smarter, and built for the future.",
-    outro: "What do you think? Would love to hear your feedback in the comments below 👇",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
+    hook: "We made an AI content creation tool that just had an Inception moment.",
+    body: "Your product won't sell itself, but we can make it 10x less painful to market it.\n\nWe generate viral posts about your product, brand and company. You can generate platform-native posts for Linkedin, Instagram and X in minutes.\n\nHow do you know it works? Well, you just read this post, didn't you? And guess who wrote it.",
+    outro: "Read the first line again.",
+    image: inceptionPostImage,
   },
   twitter: {
-    text: "Just launched something big. 🚀 The future of [industry] is here. Early users are already seeing 10x results. DM me for early access.",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=400&fit=crop",
+    text: "We made an AI content creation tool that just had an Inception moment.\n\nYour product won't sell itself, but we can make it 10x less painful to market it.\n\nWe generate viral posts about your product, brand and company. You can generate platform-native posts for Linkedin, Instagram and X in minutes.\n\nHow do you know it works? Well, you just read this post, didn't you? And guess who wrote it.\n\nRead the first line again.",
+    image: inceptionPostImage,
   },
   instagram: {
-    text: "✨ The wait is over. Introducing our game-changing product that's about to revolutionize the way you work. Swipe to see what makes it special → \n\n#launch #product #innovation #startup #entrepreneur",
-    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&h=600&fit=crop",
+    text: "We made an AI content creation tool that just had an Inception moment.\n\nYour product won't sell itself, but we can make it 10x less painful to market it.\n\nWe generate viral posts about your product, brand and company. You can generate platform-native posts for Linkedin, Instagram and X in minutes.\n\nHow do you know it works? Well, you just read this post, didn't you? And guess who wrote it.\n\nRead the first line again.",
+    image: inceptionPostImage,
   },
 };
