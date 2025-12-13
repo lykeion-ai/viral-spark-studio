@@ -11,8 +11,8 @@ export function Header() {
 
         <div className="hidden md:flex items-center gap-8">
           
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Pricing</a>
-          <a href="#" className="text-muted-foreground hover:text-foreground transition-colors text-sm">Examples</a>
+          
+          
         </div>
         <div className="flex items-center gap-3">
           <button className="p-2 rounded-full hover:bg-muted transition-colors">
