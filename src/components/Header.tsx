@@ -25,9 +25,9 @@ export function Header() {
     <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50 w-full">
       <nav className="w-full py-2 flex justify-between items-center px-4">
         {/* Left - Logo */}
-        <div className="flex items-center gap-2">
-          <img src={logo} alt="Marketly" className="w-8 h-8" />
-          <span className="text-lg font-semibold text-foreground">Marketly</span>
+        <div className="flex items-center gap-2.5">
+          <img src={logo} alt="Marketly" className="w-10 h-10" />
+          <span className="text-xl font-semibold text-foreground">Marketly</span>
         </div>
 
         {/* Center - Platform Tabs (only in editor stage) */}

@@ -45,6 +45,48 @@ const mockHistoryPosts = [
     image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&h=300&fit=crop',
     preview: 'Meet the people behind the product. Our team brings decades of combined experience in tech and design...' 
   },
+  { 
+    id: 7, 
+    title: 'New Feature Release', 
+    date: '2024-01-09', 
+    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=400&h=300&fit=crop',
+    preview: 'Introducing our new AI-powered analytics dashboard. Get real-time insights into your content performance...' 
+  },
+  { 
+    id: 8, 
+    title: 'Startup Journey', 
+    date: '2024-01-08', 
+    image: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=300&fit=crop',
+    preview: 'From idea to launch in 90 days. Here\'s the story of how we built our MVP and got our first 1000 users...' 
+  },
+  { 
+    id: 9, 
+    title: 'Marketing Tips 2024', 
+    date: '2024-01-07', 
+    image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f5a07d?w=400&h=300&fit=crop',
+    preview: '5 marketing strategies that actually work in 2024. Stop wasting time on tactics that don\'t move the needle...' 
+  },
+  { 
+    id: 10, 
+    title: 'Remote Work Culture', 
+    date: '2024-01-06', 
+    image: 'https://images.unsplash.com/photo-1587560699334-cc4ff634909a?w=400&h=300&fit=crop',
+    preview: 'Building a world-class remote team. Our approach to async communication and maintaining company culture...' 
+  },
+  { 
+    id: 11, 
+    title: 'Product Roadmap 2024', 
+    date: '2024-01-05', 
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=400&h=300&fit=crop',
+    preview: 'Exciting things are coming this year. Here\'s a sneak peek at what we\'re building for our users...' 
+  },
+  { 
+    id: 12, 
+    title: 'Investor Update', 
+    date: '2024-01-04', 
+    image: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop',
+    preview: 'We\'re thrilled to announce our Series A funding round. Here\'s what this means for our product and team...' 
+  },
 ];
 
 const PlatformIcons = () => (
