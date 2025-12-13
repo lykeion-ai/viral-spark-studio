@@ -1,4 +1,4 @@
-import { User, Linkedin } from 'lucide-react';
+import { User, Linkedin, Sparkles } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { Platform } from '@/types';
 import { useLocation } from 'react-router-dom';
@@ -21,10 +21,15 @@ export function Header() {
   const showTabs = location.pathname === '/edit';
 
   return (
-    <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+    <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50 w-full">
       <nav className="w-full py-2 flex justify-between items-center px-4">
-        {/* Left spacer */}
-        <div className="w-10" />
+        {/* Left - Logo */}
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-primary-foreground" />
+          </div>
+          <span className="text-lg font-semibold text-foreground">Marketly</span>
+        </div>
 
         {/* Center - Platform Tabs (only in editor stage) */}
         <div className="flex-1 flex justify-center">
