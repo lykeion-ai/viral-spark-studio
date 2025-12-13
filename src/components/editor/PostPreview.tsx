@@ -34,7 +34,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
         {/* Content */}
         <div className="p-4 space-y-4">
           <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'hook' ? highlightColors.hook : ''}`}>
-            <p className="text-foreground text-lg">{post.hook}</p>
+            <p className="text-foreground">{post.hook}</p>
           </div>
           
           <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'body' ? highlightColors.body : ''}`}>
