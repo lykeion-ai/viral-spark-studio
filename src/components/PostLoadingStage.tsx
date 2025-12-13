@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform, SocialPost } from '@/types';
 import { LinkedInPost } from './social/LinkedInPost';
 import { TwitterPost } from './social/TwitterPost';
@@ -43,6 +43,7 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
   const [phase, setPhase] = useState<AnimationPhase>('cycling');
   const [currentlySelecting, setCurrentlySelecting] = useState<number>(-1);
   const [displayedPosts, setDisplayedPosts] = useState<SocialPost[]>([]);
+  const [postTransforms, setPostTransforms] = useState<Map<number, { x: number; y: number }>>(new Map());
 
   const config = platformConfig[platform];
   const allPosts = config.posts;
@@ -50,10 +51,13 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
   // Instagram shows 6 posts (2x3), others show 9 posts (3x3)
   const numPosts = platform === 'instagram' ? 6 : 9;
 
+  // Refs for measuring positions
+  const gridRef = useRef<HTMLDivElement>(null);
+  const postRefs = useRef<Map<number, HTMLDivElement>>(new Map());
+
   // Always select 3 posts for all platforms
   const [selectedIndices] = useState(() => {
     const indices = Array.from({ length: numPosts }, (_, i) => i);
-    // Shuffle array
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
@@ -64,145 +68,112 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
   // Track which posts are currently animating
   const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(new Set());
 
-  // Track how many times each position has been changed
-  const [changeCount, setChangeCount] = useState<Map<number, number>>(new Map());
-
-  // Track if posts have been initialized for this cycling phase
+  // Initialize posts once
   const [postsInitialized, setPostsInitialized] = useState(false);
 
-  // Cycling effect - fade posts in and out (staggered)
-  useEffect(() => {
-    if (phase !== 'cycling') {
-      setPostsInitialized(false); // Reset for next cycling phase
-      return;
-    }
+  // Calculate transforms to move selected posts to center
+  const calculateCenterTransforms = useCallback(() => {
+    if (!gridRef.current) return;
 
-    // Start with random posts only once when entering cycling phase
+    const gridRect = gridRef.current.getBoundingClientRect();
+    const gridCenterX = gridRect.width / 2;
+    
+    const transforms = new Map<number, { x: number; y: number }>();
+    const selectedRects: { index: number; rect: DOMRect }[] = [];
+
+    // Get positions of selected posts
+    selectedIndices.forEach((index) => {
+      const el = postRefs.current.get(index);
+      if (el) {
+        selectedRects.push({ index, rect: el.getBoundingClientRect() });
+      }
+    });
+
+    if (selectedRects.length === 0) return;
+
+    // Calculate total width of selected posts with gaps
+    const gap = 16;
+    const totalWidth = selectedRects.reduce((sum, { rect }) => sum + rect.width, 0) + gap * (selectedRects.length - 1);
+    
+    // Starting X position for centered row
+    let currentX = gridCenterX - totalWidth / 2;
+    
+    // Target Y - use the first row's Y position
+    const firstRowY = selectedRects[0].rect.top - gridRect.top;
+
+    selectedRects.forEach(({ index, rect }) => {
+      const currentCenterX = rect.left - gridRect.left + rect.width / 2;
+      const currentY = rect.top - gridRect.top;
+      
+      const targetCenterX = currentX + rect.width / 2;
+      const targetY = firstRowY;
+
+      transforms.set(index, {
+        x: targetCenterX - currentCenterX,
+        y: targetY - currentY,
+      });
+
+      currentX += rect.width + gap;
+    });
+
+    setPostTransforms(transforms);
+  }, [selectedIndices]);
+
+  // Initialize posts once at the start
+  useEffect(() => {
     if (!postsInitialized) {
       const shuffled = [...allPosts].sort(() => Math.random() - 0.5);
       setDisplayedPosts(shuffled.slice(0, numPosts));
       setPostsInitialized(true);
     }
+  }, [allPosts, numPosts, postsInitialized]);
 
-    // Start first cycle immediately
-    const executeCycle = () => {
-      // Only execute if still in cycling phase
-      if (phase !== 'cycling') return;
+  // Cycling animation - only visual, no post changes
+  useEffect(() => {
+    if (phase !== 'cycling' || !postsInitialized) return;
 
-      setDisplayedPosts(currentPosts => {
-        const newPosts = [...currentPosts];
+    // Create a subtle cycling animation effect
+    const animateCycle = () => {
+      // Randomly select some posts to animate
+      const indicesToAnimate = Array.from({ length: numPosts }, (_, i) => i)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, Math.ceil(numPosts * 0.5));
 
-        // Find positions that can still be changed (max 2 times each)
-        const availableIndices = Array.from({ length: numPosts }, (_, i) => i)
-          .filter(i => (changeCount.get(i) || 0) < 2);
+      setAnimatingIndices(new Set(indicesToAnimate));
 
-        if (availableIndices.length === 0) return currentPosts;
-
-        // Change at least 70% of all posts (or as many as available)
-        const targetChangeCount = Math.ceil(numPosts * 0.7); // 70% of posts
-        const numToChange = Math.min(targetChangeCount, availableIndices.length);
-
-        // Randomly select indices from available ones
-        const shuffledAvailable = [...availableIndices].sort(() => Math.random() - 0.5);
-        const indicesToChange = shuffledAvailable.slice(0, numToChange);
-
-        // Split into 3-4 batches for staggered animation
-        const numBatches = Math.min(4, Math.max(3, Math.ceil(indicesToChange.length / 2)));
-        const batchSize = Math.ceil(indicesToChange.length / numBatches);
-        const batches: number[][] = [];
-
-        for (let i = 0; i < numBatches; i++) {
-          const start = i * batchSize;
-          const end = Math.min(start + batchSize, indicesToChange.length);
-          if (start < indicesToChange.length) {
-            batches.push(indicesToChange.slice(start, end));
-          }
-        }
-
-        // Animate batches with staggered delays (150ms between each batch start)
-        batches.forEach((batch, batchIndex) => {
-          setTimeout(() => {
-            // Set animating indices for this batch
-            setAnimatingIndices(prev => {
-              const newSet = new Set(prev);
-              batch.forEach(index => newSet.add(index));
-              return newSet;
-            });
-
-            // Update change count for this batch
-            setChangeCount(prev => {
-              const newCount = new Map(prev);
-              batch.forEach(index => {
-                newCount.set(index, (newCount.get(index) || 0) + 1);
-              });
-              return newCount;
-            });
-
-            // Clear animating indices for this batch after animation completes
-            setTimeout(() => {
-              setAnimatingIndices(prev => {
-                const newSet = new Set(prev);
-                batch.forEach(index => newSet.delete(index));
-                return newSet;
-              });
-            }, 2000);
-          }, batchIndex * 150); // 150ms delay between batch starts
-        });
-
-        // Replace posts with new random ones (all at once, but animation is staggered)
-        indicesToChange.forEach(index => {
-          const unusedPosts = allPosts.filter(p => !newPosts.some(np => np.id === p.id));
-          if (unusedPosts.length > 0) {
-            newPosts[index] = unusedPosts[Math.floor(Math.random() * unusedPosts.length)];
-          } else {
-            newPosts[index] = allPosts[Math.floor(Math.random() * allPosts.length)];
-          }
-        });
-
-        return newPosts;
-      });
+      setTimeout(() => {
+        setAnimatingIndices(new Set());
+      }, 800);
     };
 
-    // Execute first cycle immediately
-    executeCycle();
-
-    // Then continue with interval (2700ms to allow last batch animation to complete)
-    // Last batch starts at 450ms and takes 2000ms, so completes at 2450ms
-    const interval = setInterval(executeCycle, 2700);
+    animateCycle();
+    const interval = setInterval(animateCycle, 1200);
 
     return () => clearInterval(interval);
-  }, [phase, allPosts, numPosts]);
+  }, [phase, numPosts, postsInitialized]);
 
+  // Phase transitions
   useEffect(() => {
-    // Phase 1: Cycling (0-2.8s) - allows one complete cycle to finish
-    const timer1 = setTimeout(() => {
-      setPhase('analyzing');
-    }, 2800);
-
-    // Phase 2: Analyzing (2.8-4.3s)
+    const timer1 = setTimeout(() => setPhase('analyzing'), 2800);
+    
     const timer2 = setTimeout(() => {
       setPhase('selecting');
-      // Start selecting posts one by one
       selectedIndices.forEach((index, i) => {
-        setTimeout(() => setCurrentlySelecting(index), i * 600);
+        setTimeout(() => setCurrentlySelecting(index), i * 500);
       });
     }, 4300);
 
-    // Phase 3: Selecting complete, fade out non-selected (4.3-6.1s)
     const timer3 = setTimeout(() => {
       setPhase('arranging');
       setCurrentlySelecting(-1);
-    }, 6100);
+    }, 6000);
 
-    // Phase 4: Showcasing - move selected to center (6.8s)
     const timer4 = setTimeout(() => {
+      calculateCenterTransforms();
       setPhase('showcasing');
-    }, 6800);
+    }, 7000);
 
-    // Phase 5: Fading - fade out selected posts (8.5s)
-    const timer5 = setTimeout(() => {
-      setPhase('fading');
-    }, 8500);
+    const timer5 = setTimeout(() => setPhase('fading'), 8800);
 
     return () => {
       clearTimeout(timer1);
@@ -211,6 +182,14 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
       clearTimeout(timer4);
       clearTimeout(timer5);
     };
+  }, [calculateCenterTransforms, selectedIndices]);
+
+  const setPostRef = useCallback((index: number, el: HTMLDivElement | null) => {
+    if (el) {
+      postRefs.current.set(index, el);
+    } else {
+      postRefs.current.delete(index);
+    }
   }, []);
 
   const renderPost = (post: SocialPost, index: number) => {
@@ -219,8 +198,8 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     const isDimmed = phase === 'selecting' && !isSelected;
     const isAnimating = animatingIndices.has(index);
     
-    // Phase-based visibility
-    const shouldHide = (phase === 'arranging' || phase === 'showcasing' || phase === 'fading') && !isSelected;
+    const shouldFadeOut = (phase === 'arranging' || phase === 'showcasing' || phase === 'fading') && !isSelected;
+    const shouldMoveToCenter = (phase === 'showcasing' || phase === 'fading') && isSelected;
     const shouldFadeOutFinal = phase === 'fading' && isSelected;
 
     const PostComponent = {
@@ -229,26 +208,29 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
       instagram: InstagramPost,
     }[platform];
 
-    // Don't render non-selected posts after arranging phase starts
-    if (shouldHide) {
-      return (
-        <div
-          key={`${post.id}-${index}`}
-          className="transition-all duration-500 ease-out opacity-0 scale-90 pointer-events-none"
-        />
-      );
-    }
+    const transform = shouldMoveToCenter && postTransforms.has(index)
+      ? postTransforms.get(index)
+      : null;
 
     return (
       <div
         key={`${post.id}-${index}`}
-        className={`transition-all duration-700 ease-in-out ${
-          phase === 'cycling' && isAnimating ? 'animate-fade-in-out' : ''
-        } ${
-          isCurrentlySelecting ? `ring-4 ${config.circleColor} scale-105 shadow-2xl` : ''
-        } ${
-          shouldFadeOutFinal ? 'opacity-0 scale-95' : 'opacity-100'
-        }`}
+        ref={(el) => setPostRef(index, el)}
+        className={`
+          transition-all ease-out
+          ${shouldFadeOut ? 'duration-500 opacity-0 scale-95 pointer-events-none' : ''}
+          ${shouldMoveToCenter ? 'duration-1000 z-10' : 'duration-500'}
+          ${shouldFadeOutFinal ? 'opacity-0 scale-95' : ''}
+          ${!shouldFadeOut && !shouldFadeOutFinal ? 'opacity-100' : ''}
+          ${phase === 'cycling' && isAnimating ? 'scale-[1.02] shadow-lg' : ''}
+          ${isCurrentlySelecting ? `ring-4 ${config.circleColor} scale-105 shadow-2xl z-20` : ''}
+        `}
+        style={{
+          transform: transform 
+            ? `translate(${transform.x}px, ${transform.y}px)` 
+            : undefined,
+          transitionTimingFunction: shouldMoveToCenter ? 'cubic-bezier(0.4, 0, 0.2, 1)' : undefined,
+        }}
       >
         <PostComponent
           post={post}
@@ -299,67 +281,44 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
   const phaseMessage = getPhaseMessage();
 
   return (
-    <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center px-6 py-12 w-full">
+    <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-start px-6 py-8 w-full">
       {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center`}>
+      <div className="text-center mb-6">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center transition-transform duration-500 ${phase === 'analyzing' ? 'scale-110' : ''}`}>
             <config.icon className={`w-7 h-7 ${config.color}`} />
           </div>
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{phaseMessage.title}</h2>
-        <p className="text-muted-foreground flex items-center justify-center gap-2">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2 transition-all duration-300">{phaseMessage.title}</h2>
+        <p className="text-muted-foreground flex items-center justify-center gap-2 transition-all duration-300">
           {phaseMessage.icon}
           <span>{phaseMessage.subtitle}</span>
         </p>
       </div>
 
-      {/* Posts Grid - transforms to centered row when showcasing */}
+      {/* Posts Grid */}
       <div
-        className={`transition-all duration-700 ease-in-out w-full max-w-6xl ${
-          phase === 'showcasing' || phase === 'fading'
-            ? 'flex justify-center items-center gap-4'
-            : `grid gap-3 ${
-                platform === 'instagram'
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-              }`
+        ref={gridRef}
+        className={`w-full max-w-6xl grid gap-3 ${
+          platform === 'instagram'
+            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+            : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
         }`}
         style={{
-          transform: platform === 'instagram' ? 'scale(0.6)' : 'scale(0.75)',
-          transformOrigin: 'center center',
+          transform: platform === 'instagram' ? 'scale(0.55)' : 'scale(0.7)',
+          transformOrigin: 'top center',
+          marginTop: platform === 'instagram' ? '-2rem' : '0',
         }}
       >
-        {(phase === 'showcasing' || phase === 'fading')
-          ? selectedIndices.map((selectedIndex) => {
-              const post = displayedPosts[selectedIndex];
-              if (!post) return null;
-              const PostComponent = {
-                linkedin: LinkedInPost,
-                twitter: TwitterPost,
-                instagram: InstagramPost,
-              }[platform];
-              return (
-                <div
-                  key={`selected-${post.id}`}
-                  className={`transition-all duration-700 ease-in-out ${
-                    phase === 'fading' ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-                  }`}
-                >
-                  <PostComponent post={post} isSelected={false} isDimmed={false} compact />
-                </div>
-              );
-            })
-          : displayedPosts.map((post, index) => renderPost(post, index))
-        }
+        {displayedPosts.map((post, index) => renderPost(post, index))}
       </div>
 
       {/* Progress indicator */}
-      <div className="mt-8 flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'cycling' ? 'bg-primary animate-pulse' : 'bg-primary/30'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'analyzing' ? 'bg-primary animate-pulse' : phase !== 'cycling' ? 'bg-primary/30' : 'bg-border'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'selecting' ? 'bg-primary animate-pulse' : phase === 'arranging' ? 'bg-primary/30' : 'bg-border'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'arranging' ? 'bg-primary animate-pulse' : 'bg-border'}`} />
+      <div className="mt-6 flex items-center gap-2">
+        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${phase === 'cycling' ? 'bg-primary scale-125' : 'bg-primary/30'}`} />
+        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${phase === 'analyzing' ? 'bg-primary scale-125' : phase !== 'cycling' ? 'bg-primary/30' : 'bg-border'}`} />
+        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${phase === 'selecting' ? 'bg-primary scale-125' : ['arranging', 'showcasing', 'fading'].includes(phase) ? 'bg-primary/30' : 'bg-border'}`} />
+        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${['arranging', 'showcasing', 'fading'].includes(phase) ? 'bg-primary scale-125' : 'bg-border'}`} />
       </div>
     </div>
   );
