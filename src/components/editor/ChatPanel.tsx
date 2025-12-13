@@ -153,11 +153,6 @@ export function ChatPanel({
   };
 
   return <div className="flex flex-col h-full bg-card rounded-xl border border-border overflow-hidden">
-      {/* Header */}
-      <div className="p-4 border-b border-border">
-        <h3 className="font-semibold text-foreground">Edit your posts</h3>
-        <p className="text-sm text-muted-foreground">Available tags: {getAvailableTags()}</p>
-      </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
