@@ -71,7 +71,7 @@ export function ChatPanel({
             ...generatedContent,
             linkedin: {
               ...generatedContent.linkedin,
-              hook: '💥 This product just changed everything we know about the industry.'
+              hook: 'We made an AI content creation tool that just had an Inception moment.'
             }
           });
           responseText = 'I\'ve updated the hook to be more impactful! The new opener creates curiosity and urgency.';
