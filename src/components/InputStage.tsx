@@ -102,8 +102,9 @@ export function InputStage() {
   return <main className="max-w-4xl mx-auto px-6 py-20">
       <div className="text-center mb-12">
         <h1 className="text-5xl md:text-6xl font-bold text-foreground mb-4 leading-tight">
-          Generate a viral post for{' '}
-          <span className={`inline-flex items-center gap-2 ${platforms[platformIndex].color}`}>
+          Generate a viral post for
+          <br />
+          <span className={`inline-flex items-center justify-center gap-2 ${platforms[platformIndex].color}`}>
             {displayText}
             <CurrentIcon className="w-12 h-12 inline-block" />
             <span className="animate-pulse">|</span>
