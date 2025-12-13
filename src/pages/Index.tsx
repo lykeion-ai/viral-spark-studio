@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
-import { Header } from '@/components/Header';
 import { InputStage } from '@/components/InputStage';
 import { PostLoadingStage } from '@/components/PostLoadingStage';
 import { ImageLoadingStage } from '@/components/ImageLoadingStage';
@@ -34,8 +33,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className="min-h-full bg-background w-full">
       {renderStage()}
     </div>
   );
