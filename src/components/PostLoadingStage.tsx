@@ -151,7 +151,6 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
           ${shouldFadeOutSelected ? 'opacity-0' : ''}
           ${!shouldFadeOutNonSelected && !shouldFadeOutSelected ? 'opacity-100' : ''}
           ${phase === 'cycling' && isAnimating ? 'shadow-lg' : ''}
-          ${isCurrentlySelecting ? `ring-4 ${config.circleColor} shadow-2xl` : ''}
         `}
       >
         <PostComponent
@@ -225,9 +224,9 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
             : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
         }`}
         style={{
-          transform: platform === 'instagram' ? 'scale(0.55)' : 'scale(0.7)',
+          transform: platform === 'instagram' ? 'scale(0.5)' : 'scale(0.7)',
           transformOrigin: 'top center',
-          marginTop: platform === 'instagram' ? '-2rem' : '0',
+          marginTop: platform === 'instagram' ? '1rem' : '0',
         }}
       >
         {displayedPosts.map((post, index) => renderPost(post, index))}
