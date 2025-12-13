@@ -51,7 +51,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           <img
             src={post.image}
             alt="Post visual"
-            className="w-full h-48 object-cover"
+            className="w-full object-contain"
           />
         </div>
 
