@@ -9,11 +9,8 @@ import Index from "./pages/Index";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
-
 const queryClient = new QueryClient();
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+const App = () => <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AppProvider>
         <Toaster />
@@ -21,7 +18,7 @@ const App = () => (
         <BrowserRouter>
           <div className="flex min-h-screen w-full">
             <AppSidebar />
-            <main className="flex-1 flex items-center justify-center">
+            <main className="flex-1 flex items-center justify-center border-0">
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/history" element={<History />} />
@@ -33,7 +30,5 @@ const App = () => (
         </BrowserRouter>
       </AppProvider>
     </TooltipProvider>
-  </QueryClientProvider>
-);
-
+  </QueryClientProvider>;
 export default App;
