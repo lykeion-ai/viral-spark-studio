@@ -26,7 +26,7 @@ export function PostPreview({
           <img src={pavleAvatar} alt="Pavle Padjin" className="w-12 h-12 rounded-full object-cover" />
           <div>
             <p className="font-semibold text-foreground">Pavle Padjin</p>
-            <p className="text-sm text-muted-foreground"><span className="font-semibold">Forsails</span>Builder @</p>
+            <p className="text-sm text-muted-foreground"><span className="font-semibold">Forsails</span> Builder @ Marketly </p>
             <p className="text-xs text-muted-foreground">Just now</p>
           </div>
         </div>
