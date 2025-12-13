@@ -18,10 +18,11 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [stage, setStage] = useState<Stage>('input');
-  const [productData, setProductData] = useState<ProductData>({
+const [productData, setProductData] = useState<ProductData>({
     description: '',
     images: [],
     imagePreviews: [],
+    selectedPlatforms: ['linkedin', 'twitter', 'instagram'],
   });
   const [generatedContent, setGeneratedContent] = useState<GeneratedPost>(generatedPosts);
   const [activePlatform, setActivePlatform] = useState<Platform>('linkedin');

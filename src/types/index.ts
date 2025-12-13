@@ -6,6 +6,7 @@ export interface ProductData {
   description: string;
   images: File[];
   imagePreviews: string[];
+  selectedPlatforms: Platform[];
 }
 
 export interface SocialPost {
