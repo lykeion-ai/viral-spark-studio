@@ -41,7 +41,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           </div>
           
           <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'outro' ? highlightColors.outro : ''}`}>
-            <p className="text-primary font-medium">{post.outro}</p>
+            <p className="text-foreground font-medium">{post.outro}</p>
           </div>
         </div>
 
