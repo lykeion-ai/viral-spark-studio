@@ -4,6 +4,7 @@ import { ChatPanel } from './editor/ChatPanel';
 import { PostPreview } from './editor/PostPreview';
 import { Platform, HighlightType } from '@/types';
 import { Linkedin, Twitter } from 'lucide-react';
+import instagramIcon from '@/assets/instagram-icon.png';
 
 const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
   { id: 'linkedin', label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" /> },
@@ -11,11 +12,7 @@ const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
   { 
     id: 'instagram', 
     label: 'Instagram', 
-    icon: (
-      <div className="w-4 h-4 rounded bg-gradient-to-tr from-instagram-orange to-instagram-pink flex items-center justify-center">
-        <span className="text-[8px] text-white">📷</span>
-      </div>
-    ) 
+    icon: <img src={instagramIcon} alt="Instagram" className="w-4 h-4" />
   },
 ];
 
