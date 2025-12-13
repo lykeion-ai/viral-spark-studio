@@ -1,32 +1,32 @@
 import { useApp } from '@/contexts/AppContext';
 import { HighlightType } from '@/types';
 import pavleAvatar from '@/assets/pavle-avatar.png';
-
 interface PostPreviewProps {
   highlight: HighlightType;
 }
-
 const highlightColors: Record<string, string> = {
   hook: 'bg-highlight-hook/20 border-l-4 border-highlight-hook',
   body: 'bg-highlight-body/20 border-l-4 border-highlight-body',
   outro: 'bg-highlight-outro/20 border-l-4 border-highlight-outro',
   image: 'ring-4 ring-highlight-image',
-  text: 'bg-highlight-text/20 border-l-4 border-highlight-text',
+  text: 'bg-highlight-text/20 border-l-4 border-highlight-text'
 };
-
-export function PostPreview({ highlight }: PostPreviewProps) {
-  const { activePlatform, generatedContent } = useApp();
-
+export function PostPreview({
+  highlight
+}: PostPreviewProps) {
+  const {
+    activePlatform,
+    generatedContent
+  } = useApp();
   if (activePlatform === 'linkedin') {
     const post = generatedContent.linkedin;
-    return (
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+    return <div className="bg-card rounded-xl border border-border overflow-hidden">
         {/* LinkedIn Header */}
         <div className="p-4 flex items-start gap-3 border-b border-border">
           <img src={pavleAvatar} alt="Pavle Padjin" className="w-12 h-12 rounded-full object-cover" />
           <div>
             <p className="font-semibold text-foreground">Pavle Padjin</p>
-            <p className="text-sm text-muted-foreground"><span className="font-semibold">Forsails</span> Co-Founder</p>
+            <p className="text-sm text-muted-foreground"><span className="font-semibold">Forsails</span>Builder @</p>
             <p className="text-xs text-muted-foreground">Just now</p>
           </div>
         </div>
@@ -48,11 +48,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
 
         {/* Image */}
         <div className={`transition-all duration-300 ${highlight === 'image' ? highlightColors.image : ''}`}>
-          <img
-            src={post.image}
-            alt="Post visual"
-            className="w-full object-contain"
-          />
+          <img src={post.image} alt="Post visual" className="w-full object-contain" />
         </div>
 
         {/* Engagement Bar */}
@@ -62,14 +58,11 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           <span>🔄 Repost</span>
           <span>📤 Send</span>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (activePlatform === 'twitter') {
     const post = generatedContent.twitter;
-    return (
-      <div className="bg-card rounded-xl border border-border overflow-hidden">
+    return <div className="bg-card rounded-xl border border-border overflow-hidden">
         {/* Twitter Header */}
         <div className="p-4 flex items-start gap-3">
           <img src={pavleAvatar} alt="Pavle Padjin" className="w-12 h-12 rounded-full object-cover" />
@@ -89,11 +82,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
 
         {/* Image */}
         <div className={`mx-4 mb-4 rounded-xl overflow-hidden transition-all duration-300 ${highlight === 'image' ? highlightColors.image : ''}`}>
-          <img
-            src={post.image}
-            alt="Post visual"
-            className="w-full aspect-video object-cover"
-          />
+          <img src={post.image} alt="Post visual" className="w-full aspect-video object-cover" />
         </div>
 
         {/* Engagement Bar */}
@@ -103,14 +92,12 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           <span>❤️ 789</span>
           <span>📊 1.2K</span>
         </div>
-      </div>
-    );
+      </div>;
   }
 
   // Instagram
   const post = generatedContent.instagram;
-  return (
-    <div className="origin-top scale-[0.85]">
+  return <div className="origin-top scale-[0.85]">
       <div className="bg-card rounded-xl border border-border overflow-hidden">
         {/* Instagram Header */}
         <div className="p-3 flex items-center gap-3">
@@ -122,11 +109,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
 
         {/* Image */}
         <div className={`transition-all duration-300 ${highlight === 'image' ? highlightColors.image : ''}`}>
-          <img
-            src={post.image}
-            alt="Post visual"
-            className="w-full aspect-square object-cover"
-          />
+          <img src={post.image} alt="Post visual" className="w-full aspect-square object-cover" />
         </div>
 
         {/* Actions */}
@@ -151,6 +134,5 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
