@@ -13,6 +13,7 @@ const Index = () => {
 
   useEffect(() => {
     if (stage === 'editor') {
+      window.scrollTo(0, 0);
       navigate('/edit');
       return;
     }
