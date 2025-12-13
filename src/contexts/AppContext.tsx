@@ -43,9 +43,6 @@ const [productData, setProductData] = useState<ProductData>({
     setTimeout(() => setStage('twitter-loading'), currentTime);
 
     currentTime += 9000; // Twitter loading
-    setTimeout(() => setStage('image-loading'), currentTime);
-
-    currentTime += 4000; // Image loading
     setTimeout(() => setStage('editor'), currentTime);
   };
 
