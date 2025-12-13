@@ -78,8 +78,8 @@ export function PostPreview({ highlight }: PostPreviewProps) {
             </div>
             
             {/* Content */}
-            <div className={`mt-3 p-3 rounded-lg transition-all duration-300 ${highlight === 'text' ? highlightColors.text : ''}`}>
-              <p className="text-foreground text-lg leading-relaxed">{post.text}</p>
+            <div className={`mt-2 p-2 rounded-lg transition-all duration-300 ${highlight === 'text' ? highlightColors.text : ''}`}>
+              <p className="text-foreground text-sm leading-relaxed">{post.text}</p>
             </div>
           </div>
         </div>
