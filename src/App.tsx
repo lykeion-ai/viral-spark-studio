@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "./contexts/AppContext";
 import { AppSidebar } from "./components/AppSidebar";
 import Index from "./pages/Index";
+import Edit from "./pages/Edit";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -21,6 +22,7 @@ const App = () => <QueryClientProvider client={queryClient}>
             <main className="flex-1 flex items-center justify-center border-0">
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/edit" element={<Edit />} />
                 <Route path="/history" element={<History />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<NotFound />} />
