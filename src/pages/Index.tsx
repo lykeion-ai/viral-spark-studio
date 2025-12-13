@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '@/contexts/AppContext';
 import { InputStage } from '@/components/InputStage';
@@ -8,23 +8,37 @@ import { ImageLoadingStage } from '@/components/ImageLoadingStage';
 const Index = () => {
   const { stage } = useApp();
   const navigate = useNavigate();
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [displayStage, setDisplayStage] = useState(stage);
 
   useEffect(() => {
     if (stage === 'editor') {
       navigate('/edit');
+      return;
     }
+
+    // Start fade out
+    setIsTransitioning(true);
+
+    // Wait for fade out, then change stage
+    const timer = setTimeout(() => {
+      setDisplayStage(stage);
+      setIsTransitioning(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
   }, [stage, navigate]);
 
   const renderStage = () => {
-    switch (stage) {
+    switch (displayStage) {
       case 'input':
         return <InputStage />;
       case 'linkedin-loading':
-        return <PostLoadingStage platform="linkedin" />;
-      case 'twitter-loading':
-        return <PostLoadingStage platform="twitter" />;
+        return <PostLoadingStage key="linkedin" platform="linkedin" />;
       case 'instagram-loading':
-        return <PostLoadingStage platform="instagram" />;
+        return <PostLoadingStage key="instagram" platform="instagram" />;
+      case 'twitter-loading':
+        return <PostLoadingStage key="twitter" platform="twitter" />;
       case 'image-loading':
         return <ImageLoadingStage />;
       default:
@@ -34,7 +48,13 @@ const Index = () => {
 
   return (
     <div className="min-h-full bg-background w-full">
-      {renderStage()}
+      <div
+        className={`w-full transition-opacity duration-500 ease-in-out ${
+          isTransitioning ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
+        {renderStage()}
+      </div>
     </div>
   );
 };
