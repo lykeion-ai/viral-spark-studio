@@ -145,11 +145,18 @@ export function ChatPanel({
       return part;
     });
   };
+  const getAvailableTags = () => {
+    if (activePlatform === 'linkedin') {
+      return '@hook, @body, @outro, @image';
+    }
+    return '@text, @image';
+  };
+
   return <div className="flex flex-col h-full bg-card rounded-xl border border-border overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <h3 className="font-semibold text-foreground">Edit your posts</h3>
-        <p className="text-sm text-muted-foreground">Use @ tags to target specific sections</p>
+        <p className="text-sm text-muted-foreground">Available tags: {getAvailableTags()}</p>
       </div>
 
       {/* Messages */}
