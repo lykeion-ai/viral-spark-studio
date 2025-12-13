@@ -63,7 +63,7 @@ const mockHistoryPosts = [
     id: 9, 
     title: 'Marketing Tips 2024', 
     date: '2024-01-07', 
-    image: 'https://images.unsplash.com/photo-1432888622747-4eb9a8f5a07d?w=400&h=300&fit=crop',
+    image: 'https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=400&h=300&fit=crop',
     preview: '5 marketing strategies that actually work in 2024. Stop wasting time on tactics that don\'t move the needle...' 
   },
   { 
