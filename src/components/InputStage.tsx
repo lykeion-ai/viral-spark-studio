@@ -143,7 +143,7 @@ export function InputStage() {
       <div className="space-y-6">
         {/* Main Input */}
         <div className="chat-input-wrapper">
-          <textarea value={productData.description} onChange={handleDescriptionChange} placeholder="Describe your product in 2-3 sentences... What makes it special? Who is it for?" className="w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground resize-none outline-none text-lg leading-relaxed min-h-[120px] pr-14" rows={4} />
+          <textarea value={productData.description} onChange={handleDescriptionChange} placeholder="Describe your product and the content of the post you want to generate." className="w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground resize-none outline-none text-lg leading-relaxed min-h-[120px] pr-14" rows={4} />
           <button onClick={handleGenerate} disabled={!productData.description.trim()} className="absolute right-5 bottom-5 w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-primary-foreground hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105">
             <Send className="w-5 h-5" />
           </button>
