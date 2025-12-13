@@ -107,45 +107,47 @@ export function PostPreview({ highlight }: PostPreviewProps) {
   // Instagram
   const post = generatedContent.instagram;
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden">
-      {/* Instagram Header */}
-      <div className="p-3 flex items-center gap-3">
-        <div className="p-0.5 rounded-full bg-gradient-to-tr from-instagram-orange to-instagram-pink">
-          <div className="w-10 h-10 rounded-full bg-card p-0.5">
-            <div className="w-full h-full rounded-full bg-gradient-to-br from-instagram-pink to-instagram-orange" />
+    <div className="origin-top scale-[0.85]">
+      <div className="bg-card rounded-xl border border-border overflow-hidden">
+        {/* Instagram Header */}
+        <div className="p-3 flex items-center gap-3">
+          <div className="p-0.5 rounded-full bg-gradient-to-tr from-instagram-orange to-instagram-pink">
+            <div className="w-10 h-10 rounded-full bg-card p-0.5">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-instagram-pink to-instagram-orange" />
+            </div>
           </div>
+          <p className="font-semibold text-foreground">yourbrand</p>
         </div>
-        <p className="font-semibold text-foreground">yourbrand</p>
-      </div>
 
-      {/* Image */}
-      <div className={`transition-all duration-300 ${highlight === 'image' ? highlightColors.image : ''}`}>
-        <img
-          src={post.image}
-          alt="Post visual"
-          className="w-full aspect-square object-cover"
-        />
-      </div>
+        {/* Image */}
+        <div className={`transition-all duration-300 ${highlight === 'image' ? highlightColors.image : ''}`}>
+          <img
+            src={post.image}
+            alt="Post visual"
+            className="w-full aspect-square object-cover"
+          />
+        </div>
 
-      {/* Actions */}
-      <div className="p-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-4 text-foreground">
-            <span className="text-xl cursor-pointer hover:opacity-70">❤️</span>
-            <span className="text-xl cursor-pointer hover:opacity-70">💬</span>
-            <span className="text-xl cursor-pointer hover:opacity-70">📤</span>
+        {/* Actions */}
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-4 text-foreground">
+              <span className="text-xl cursor-pointer hover:opacity-70">❤️</span>
+              <span className="text-xl cursor-pointer hover:opacity-70">💬</span>
+              <span className="text-xl cursor-pointer hover:opacity-70">📤</span>
+            </div>
+            <span className="text-xl cursor-pointer hover:opacity-70">🔖</span>
           </div>
-          <span className="text-xl cursor-pointer hover:opacity-70">🔖</span>
-        </div>
-        
-        <p className="font-semibold text-sm mb-2">1,234 likes</p>
-        
-        {/* Caption */}
-        <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'text' ? highlightColors.text : ''}`}>
-          <p className="text-foreground text-sm">
-            <span className="font-semibold mr-1">yourbrand</span>
-            {post.text}
-          </p>
+          
+          <p className="font-semibold text-sm mb-2">1,234 likes</p>
+          
+          {/* Caption */}
+          <div className={`p-3 rounded-lg transition-all duration-300 ${highlight === 'text' ? highlightColors.text : ''}`}>
+            <p className="text-foreground text-sm">
+              <span className="font-semibold mr-1">yourbrand</span>
+              {post.text}
+            </p>
+          </div>
         </div>
       </div>
     </div>
