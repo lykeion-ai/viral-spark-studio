@@ -1,6 +1,7 @@
 import { User, Linkedin, Twitter } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { Platform } from '@/types';
+import { useLocation } from 'react-router-dom';
 import instagramIcon from '@/assets/instagram-icon.png';
 
 const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
@@ -14,8 +15,9 @@ const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
 ];
 
 export function Header() {
-  const { stage, activePlatform, setActivePlatform } = useApp();
-  const showTabs = stage === 'editor';
+  const { activePlatform, setActivePlatform } = useApp();
+  const location = useLocation();
+  const showTabs = location.pathname === '/edit';
 
   return (
     <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
