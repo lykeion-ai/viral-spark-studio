@@ -1,12 +1,13 @@
-import { User, Linkedin, Twitter } from 'lucide-react';
+import { User, Linkedin } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 import { Platform } from '@/types';
 import { useLocation } from 'react-router-dom';
 import instagramIcon from '@/assets/instagram-icon.png';
+import xIcon from '@/assets/x-icon.png';
 
 const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
   { id: 'linkedin', label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" /> },
-  { id: 'twitter', label: 'X', icon: <Twitter className="w-4 h-4" /> },
+  { id: 'twitter', label: 'X', icon: <img src={xIcon} alt="X" className="w-4 h-4" /> },
   { 
     id: 'instagram', 
     label: 'Instagram', 
