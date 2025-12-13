@@ -232,13 +232,6 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
         {displayedPosts.map((post, index) => renderPost(post, index))}
       </div>
 
-      {/* Progress indicator */}
-      <div className="mt-6 flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${phase === 'cycling' ? 'bg-primary scale-125' : 'bg-primary/30'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${phase === 'analyzing' ? 'bg-primary scale-125' : phase !== 'cycling' ? 'bg-primary/30' : 'bg-border'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${phase === 'selecting' ? 'bg-primary scale-125' : ['showcasing', 'fading'].includes(phase) ? 'bg-primary/30' : 'bg-border'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-500 ${['showcasing', 'fading'].includes(phase) ? 'bg-primary scale-125' : 'bg-border'}`} />
-      </div>
     </div>
   );
 }
