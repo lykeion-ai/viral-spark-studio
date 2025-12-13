@@ -4,7 +4,7 @@ import { LinkedInPost } from './social/LinkedInPost';
 import { TwitterPost } from './social/TwitterPost';
 import { InstagramPost } from './social/InstagramPost';
 import { linkedinPosts, twitterPosts, instagramPosts } from '@/data/mockPosts';
-import { Linkedin, Twitter } from 'lucide-react';
+import { Linkedin, Twitter, Sparkles, TrendingUp, Instagram } from 'lucide-react';
 
 interface PostLoadingStageProps {
   platform: Platform;
@@ -13,32 +13,47 @@ interface PostLoadingStageProps {
 const platformConfig = {
   linkedin: {
     posts: linkedinPosts,
-    title: 'Finding viral LinkedIn posts',
-    subtitle: 'Analyzing top-performing content...',
     icon: Linkedin,
     color: 'text-linkedin',
+    bgColor: 'bg-linkedin/10',
+    circleColor: 'ring-linkedin shadow-linkedin/50',
+    name: 'LinkedIn',
   },
   twitter: {
     posts: twitterPosts,
-    title: 'Finding viral X posts',
-    subtitle: 'Scanning trending content...',
     icon: Twitter,
     color: 'text-twitter',
+    bgColor: 'bg-twitter/10',
+    circleColor: 'ring-twitter shadow-twitter/50',
+    name: 'X',
   },
   instagram: {
     posts: instagramPosts,
-    title: 'Finding viral Instagram posts',
-    subtitle: 'Discovering engaging content...',
-    icon: null,
+    icon: Instagram,
     color: 'from-instagram-pink to-instagram-orange',
+    bgColor: 'bg-gradient-to-tr from-instagram-pink/10 to-instagram-orange/10',
+    circleColor: 'ring-2 ring-instagram-pink shadow-instagram-pink/50',
+    name: 'Instagram',
   },
 };
 
+type AnimationPhase = 'cycling' | 'analyzing' | 'selecting' | 'arranging';
+
 export function PostLoadingStage({ platform }: PostLoadingStageProps) {
-  const [phase, setPhase] = useState<'showing' | 'selecting' | 'selected'>('showing');
+  const [phase, setPhase] = useState<AnimationPhase>('cycling');
+  const [currentlySelecting, setCurrentlySelecting] = useState<number>(-1);
+  const [displayedPosts, setDisplayedPosts] = useState<SocialPost[]>([]);
+
+  const config = platformConfig[platform];
+  const allPosts = config.posts;
+
+  // Instagram shows 6 posts (2x3), others show 9 posts (3x3)
+  const numPosts = platform === 'instagram' ? 6 : 9;
+
+  // Always select 3 posts for all platforms
   const [selectedIndices] = useState(() => {
-    // Randomly select 3 indices
-    const indices = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+    const indices = Array.from({ length: numPosts }, (_, i) => i);
+    // Shuffle array
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
@@ -46,24 +61,188 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     return indices.slice(0, 3);
   });
 
-  const config = platformConfig[platform];
-  const posts = config.posts;
+  // Track which posts are currently animating
+  const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(new Set());
+
+  // Track how many times each position has been changed
+  const [changeCount, setChangeCount] = useState<Map<number, number>>(new Map());
+
+  // Track if posts have been initialized for this cycling phase
+  const [postsInitialized, setPostsInitialized] = useState(false);
+
+  // Cycling effect - fade posts in and out (staggered)
+  useEffect(() => {
+    if (phase !== 'cycling') {
+      setPostsInitialized(false); // Reset for next cycling phase
+      return;
+    }
+
+    // Start with random posts only once when entering cycling phase
+    if (!postsInitialized) {
+      const shuffled = [...allPosts].sort(() => Math.random() - 0.5);
+      setDisplayedPosts(shuffled.slice(0, numPosts));
+      setPostsInitialized(true);
+    }
+
+    // Start first cycle immediately
+    const executeCycle = () => {
+      // Only execute if still in cycling phase
+      if (phase !== 'cycling') return;
+
+      setDisplayedPosts(currentPosts => {
+        const newPosts = [...currentPosts];
+
+        // Find positions that can still be changed (max 2 times each)
+        const availableIndices = Array.from({ length: numPosts }, (_, i) => i)
+          .filter(i => (changeCount.get(i) || 0) < 2);
+
+        if (availableIndices.length === 0) return currentPosts;
+
+        // Change at least 70% of all posts (or as many as available)
+        const targetChangeCount = Math.ceil(numPosts * 0.7); // 70% of posts
+        const numToChange = Math.min(targetChangeCount, availableIndices.length);
+
+        // Randomly select indices from available ones
+        const shuffledAvailable = [...availableIndices].sort(() => Math.random() - 0.5);
+        const indicesToChange = shuffledAvailable.slice(0, numToChange);
+
+        // Split into 3-4 batches for staggered animation
+        const numBatches = Math.min(4, Math.max(3, Math.ceil(indicesToChange.length / 2)));
+        const batchSize = Math.ceil(indicesToChange.length / numBatches);
+        const batches: number[][] = [];
+
+        for (let i = 0; i < numBatches; i++) {
+          const start = i * batchSize;
+          const end = Math.min(start + batchSize, indicesToChange.length);
+          if (start < indicesToChange.length) {
+            batches.push(indicesToChange.slice(start, end));
+          }
+        }
+
+        // Animate batches with staggered delays (150ms between each batch start)
+        batches.forEach((batch, batchIndex) => {
+          setTimeout(() => {
+            // Set animating indices for this batch
+            setAnimatingIndices(prev => {
+              const newSet = new Set(prev);
+              batch.forEach(index => newSet.add(index));
+              return newSet;
+            });
+
+            // Update change count for this batch
+            setChangeCount(prev => {
+              const newCount = new Map(prev);
+              batch.forEach(index => {
+                newCount.set(index, (newCount.get(index) || 0) + 1);
+              });
+              return newCount;
+            });
+
+            // Clear animating indices for this batch after animation completes
+            setTimeout(() => {
+              setAnimatingIndices(prev => {
+                const newSet = new Set(prev);
+                batch.forEach(index => newSet.delete(index));
+                return newSet;
+              });
+            }, 2000);
+          }, batchIndex * 150); // 150ms delay between batch starts
+        });
+
+        // Replace posts with new random ones (all at once, but animation is staggered)
+        indicesToChange.forEach(index => {
+          const unusedPosts = allPosts.filter(p => !newPosts.some(np => np.id === p.id));
+          if (unusedPosts.length > 0) {
+            newPosts[index] = unusedPosts[Math.floor(Math.random() * unusedPosts.length)];
+          } else {
+            newPosts[index] = allPosts[Math.floor(Math.random() * allPosts.length)];
+          }
+        });
+
+        return newPosts;
+      });
+    };
+
+    // Execute first cycle immediately
+    executeCycle();
+
+    // Then continue with interval (2700ms to allow last batch animation to complete)
+    // Last batch starts at 450ms and takes 2000ms, so completes at 2450ms
+    const interval = setInterval(executeCycle, 2700);
+
+    return () => clearInterval(interval);
+  }, [phase, allPosts, numPosts]);
 
   useEffect(() => {
-    const timer1 = setTimeout(() => setPhase('selecting'), 2000);
-    const timer2 = setTimeout(() => setPhase('selected'), 3500);
+    // Phase 1: Cycling (0-2.8s) - allows one complete cycle to finish
+    const timer1 = setTimeout(() => {
+      setPhase('analyzing');
+      // Keep the posts that are already on screen
+    }, 2800);
+
+    // Phase 2: Analyzing (2.8-4.3s)
+    const timer2 = setTimeout(() => {
+      setPhase('selecting');
+      // Start selecting posts one by one
+      selectedIndices.forEach((index, i) => {
+        setTimeout(() => setCurrentlySelecting(index), i * 600);
+      });
+    }, 4300);
+
+    // Phase 3: Selecting (4.3-6.1s)
+    const timer3 = setTimeout(() => {
+      setPhase('arranging');
+      setCurrentlySelecting(-1);
+    }, 6100);
+
+    // Phase 4: Arranging continues for longer (6.1-8.8s = 2.7s to view)
+
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
+      clearTimeout(timer3);
     };
   }, []);
 
   const renderPost = (post: SocialPost, index: number) => {
     const isSelected = selectedIndices.includes(index);
-    const isDimmed = phase !== 'showing' && !isSelected;
-    const shouldHide = phase === 'selected' && !isSelected;
+    const isCurrentlySelecting = currentlySelecting === index;
+    const shouldFadeOut = phase === 'arranging' && !isSelected;
+    const isDimmed = phase === 'selecting' && !isSelected;
+    const isAnimating = animatingIndices.has(index);
 
-    if (shouldHide) return null;
+    // Calculate transform to move selected posts to first row
+    let transform = '';
+    if (phase === 'arranging' && isSelected) {
+      // Calculate current row and column in the grid (assuming 3 columns on desktop)
+      const cols = 3;
+      const currentRow = Math.floor(index / cols);
+      const currentCol = index % cols;
+
+      // Target position in first row
+      const selectedPosition = selectedIndices.indexOf(index);
+      const targetCol = selectedPosition;
+
+      // Calculate the translation needed
+      // Account for container scaling (0.75 for linkedin/twitter, 0.6 for instagram)
+      const scale = platform === 'instagram' ? 0.6 : 0.75;
+
+      // Adjust row height based on platform and scaling
+      // LinkedIn/Twitter posts are ~280px, Instagram posts are ~450px
+      const baseRowHeight = platform === 'instagram' ? 450 : 280;
+      const rowHeight = (baseRowHeight + 12) / scale; // Adjust for container scale
+
+      const translateY = -currentRow * rowHeight;
+
+      // For horizontal movement
+      // Grid is max-w-6xl (1152px) with 3 columns
+      // Each column width = (1152px - 24px gaps) / 3 ≈ 376px per column
+      const colDiff = targetCol - currentCol;
+      const columnWidth = 376 + 12; // column width + gap
+      const translateX = colDiff * columnWidth / scale; // Adjust for container scale
+
+      transform = `translateX(${translateX}px) translateY(${translateY}px)`;
+    }
 
     const PostComponent = {
       linkedin: LinkedInPost,
@@ -73,17 +252,22 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
 
     return (
       <div
-        key={post.id}
-        className={`transition-all duration-700 ${
-          phase === 'selecting' && isSelected ? 'animate-pulse-glow' : ''
+        key={`${post.id}-${index}`}
+        className={`transition-all duration-1500 ease-in-out ${
+          phase === 'cycling' && isAnimating ? 'animate-fade-in-out' : ''
+        } ${
+          isCurrentlySelecting ? `ring-4 ${config.circleColor} scale-105 shadow-2xl` : ''
+        } ${
+          shouldFadeOut ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100'
         }`}
         style={{
           transitionDelay: `${index * 50}ms`,
+          transform: transform || undefined,
         }}
       >
         <PostComponent
           post={post}
-          isSelected={phase !== 'showing' && isSelected}
+          isSelected={false}
           isDimmed={isDimmed}
           compact
         />
@@ -91,39 +275,74 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     );
   };
 
+  const getPhaseMessage = () => {
+    switch (phase) {
+      case 'cycling':
+        return {
+          title: 'Finding top viral posts',
+          subtitle: `Scanning ${config.name} for high-engagement content...`,
+          icon: <TrendingUp className="w-5 h-5 animate-pulse" />,
+        };
+      case 'analyzing':
+        return {
+          title: 'Analyzing viral posts',
+          subtitle: 'Evaluating engagement metrics and content patterns...',
+          icon: <Sparkles className="w-5 h-5 animate-spin" />,
+        };
+      case 'selecting':
+        return {
+          title: 'Taking top posts that will help the most',
+          subtitle: 'Selecting viral content to enhance your prompt and images...',
+          icon: <Sparkles className="w-5 h-5 text-primary animate-pulse" />,
+        };
+      case 'arranging':
+        return {
+          title: 'Extracting viral patterns',
+          subtitle: `Analyzing key elements from ${config.name} posts...`,
+          icon: <Sparkles className="w-5 h-5 text-primary" />,
+        };
+    }
+  };
+
+  const phaseMessage = getPhaseMessage();
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12">
+    <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center px-6 py-12 w-full">
       {/* Header */}
-      <div className="text-center mb-8 animate-fade-scale">
+      <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
-          {platform === 'instagram' ? (
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-instagram-pink to-instagram-orange flex items-center justify-center">
-              <span className="text-white text-xl">📸</span>
-            </div>
-          ) : (
-            <config.icon className={`w-10 h-10 ${config.color}`} />
-          )}
+          <div className={`w-12 h-12 rounded-xl ${config.bgColor} flex items-center justify-center`}>
+            <config.icon className={`w-7 h-7 ${config.color}`} />
+          </div>
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{config.title}</h2>
-        <p className="text-muted-foreground">{config.subtitle}</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{phaseMessage.title}</h2>
+        <p className="text-muted-foreground flex items-center justify-center gap-2">
+          {phaseMessage.icon}
+          <span>{phaseMessage.subtitle}</span>
+        </p>
       </div>
 
-      {/* Posts Grid */}
+      {/* Posts Grid or Row */}
       <div
-        className={`grid gap-4 max-w-5xl w-full transition-all duration-700 ${
-          phase === 'selected'
-            ? 'grid-cols-1 md:grid-cols-3 max-w-4xl'
+        className={`transition-all duration-1000 ease-in-out w-full grid gap-3 max-w-6xl ${
+          platform === 'instagram'
+            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
             : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
         }`}
+        style={{
+          transform: platform === 'instagram' ? 'scale(0.6)' : 'scale(0.75)',
+          transformOrigin: 'top center',
+        }}
       >
-        {posts.map((post, index) => renderPost(post, index))}
+        {displayedPosts.map((post, index) => renderPost(post, index))}
       </div>
 
       {/* Progress indicator */}
       <div className="mt-8 flex items-center gap-2">
-        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'showing' ? 'bg-primary' : 'bg-border'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'selecting' ? 'bg-primary animate-pulse' : 'bg-border'}`} />
-        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'selected' ? 'bg-primary' : 'bg-border'}`} />
+        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'cycling' ? 'bg-primary animate-pulse' : 'bg-primary/30'}`} />
+        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'analyzing' ? 'bg-primary animate-pulse' : phase !== 'cycling' ? 'bg-primary/30' : 'bg-border'}`} />
+        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'selecting' ? 'bg-primary animate-pulse' : phase === 'arranging' ? 'bg-primary/30' : 'bg-border'}`} />
+        <div className={`w-2 h-2 rounded-full transition-all duration-300 ${phase === 'arranging' ? 'bg-primary animate-pulse' : 'bg-border'}`} />
       </div>
     </div>
   );

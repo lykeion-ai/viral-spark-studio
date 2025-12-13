@@ -31,12 +31,22 @@ const [productData, setProductData] = useState<ProductData>({
     // Simulate API call to /generate endpoint
     setGeneratedContent(generatedPosts);
     setStage('linkedin-loading');
-    
-    // Auto-progress through stages
-    setTimeout(() => setStage('twitter-loading'), 5000);
-    setTimeout(() => setStage('instagram-loading'), 10000);
-    setTimeout(() => setStage('image-loading'), 15000);
-    setTimeout(() => setStage('editor'), 19000);
+
+    // Auto-progress through stages with new timing
+    // Each platform loading takes ~9s (2.8s cycling + 1.5s analyzing + 1.8s selecting + 2.7s arranging + 0.2s buffer)
+    let currentTime = 0;
+
+    currentTime += 9000; // LinkedIn loading
+    setTimeout(() => setStage('instagram-loading'), currentTime);
+
+    currentTime += 9000; // Instagram loading
+    setTimeout(() => setStage('twitter-loading'), currentTime);
+
+    currentTime += 9000; // Twitter loading
+    setTimeout(() => setStage('image-loading'), currentTime);
+
+    currentTime += 4000; // Image loading
+    setTimeout(() => setStage('editor'), currentTime);
   };
 
   return (
