@@ -65,11 +65,11 @@ export default function History() {
   return (
     <div className="flex-1 p-8">
       <h1 className="text-2xl font-semibold mb-6">Post History</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {mockHistoryPosts.map((post) => (
           <div
             key={post.id}
-            className="rounded-xl border border-border bg-card hover:shadow-lg transition-all cursor-pointer overflow-hidden group"
+            className="rounded-lg border border-border bg-card hover:shadow-md transition-all cursor-pointer overflow-hidden group"
           >
             {/* Image Section */}
             <div className="relative aspect-[4/3] overflow-hidden">
@@ -79,21 +79,21 @@ export default function History() {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
               {/* Platform Icons - Top Right */}
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-2 right-2">
                 <PlatformIcons />
               </div>
             </div>
             
             {/* Content Section */}
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 rounded-full bg-[#0A66C2] flex items-center justify-center">
-                  <Linkedin className="w-3 h-3 text-white" />
+            <div className="p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <div className="w-4 h-4 rounded-full bg-[#0A66C2] flex items-center justify-center">
+                  <Linkedin className="w-2.5 h-2.5 text-white" />
                 </div>
-                <span className="text-xs text-muted-foreground">{post.date}</span>
+                <span className="text-[10px] text-muted-foreground">{post.date}</span>
               </div>
-              <h3 className="font-medium mb-2 line-clamp-1">{post.title}</h3>
-              <p className="text-sm text-muted-foreground line-clamp-2">{post.preview}</p>
+              <h3 className="font-medium text-sm mb-1 line-clamp-1">{post.title}</h3>
+              <p className="text-xs text-muted-foreground line-clamp-2">{post.preview}</p>
             </div>
           </div>
         ))}
