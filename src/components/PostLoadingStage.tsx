@@ -208,41 +208,9 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     const isSelected = selectedIndices.includes(index);
     const isCurrentlySelecting = currentlySelecting === index;
     const shouldFadeOut = phase === 'arranging' && !isSelected;
+    const shouldFadeOutSelected = phase === 'arranging' && isSelected;
     const isDimmed = phase === 'selecting' && !isSelected;
     const isAnimating = animatingIndices.has(index);
-
-    // Calculate transform to move selected posts to first row
-    let transform = '';
-    if (phase === 'arranging' && isSelected) {
-      // Calculate current row and column in the grid (assuming 3 columns on desktop)
-      const cols = 3;
-      const currentRow = Math.floor(index / cols);
-      const currentCol = index % cols;
-
-      // Target position in first row
-      const selectedPosition = selectedIndices.indexOf(index);
-      const targetCol = selectedPosition;
-
-      // Calculate the translation needed
-      // Account for container scaling (0.75 for linkedin/twitter, 0.6 for instagram)
-      const scale = platform === 'instagram' ? 0.6 : 0.75;
-
-      // Adjust row height based on platform and scaling
-      // LinkedIn/Twitter posts are ~280px, Instagram posts are ~450px
-      const baseRowHeight = platform === 'instagram' ? 450 : 280;
-      const rowHeight = (baseRowHeight + 12) / scale; // Adjust for container scale
-
-      const translateY = -currentRow * rowHeight;
-
-      // For horizontal movement
-      // Grid is max-w-6xl (1152px) with 3 columns
-      // Each column width = (1152px - 24px gaps) / 3 ≈ 376px per column
-      const colDiff = targetCol - currentCol;
-      const columnWidth = 376 + 12; // column width + gap
-      const translateX = colDiff * columnWidth / scale; // Adjust for container scale
-
-      transform = `translateX(${translateX}px) translateY(${translateY}px)`;
-    }
 
     const PostComponent = {
       linkedin: LinkedInPost,
@@ -253,16 +221,17 @@ export function PostLoadingStage({ platform }: PostLoadingStageProps) {
     return (
       <div
         key={`${post.id}-${index}`}
-        className={`transition-all duration-1500 ease-in-out ${
+        className={`transition-all duration-700 ease-in-out ${
           phase === 'cycling' && isAnimating ? 'animate-fade-in-out' : ''
         } ${
           isCurrentlySelecting ? `ring-4 ${config.circleColor} scale-105 shadow-2xl` : ''
         } ${
-          shouldFadeOut ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100'
+          shouldFadeOut ? 'opacity-0 scale-95 pointer-events-none' : ''
+        } ${
+          shouldFadeOutSelected ? 'opacity-0 transition-opacity duration-1000 delay-500' : 'opacity-100'
         }`}
         style={{
-          transitionDelay: `${index * 50}ms`,
-          transform: transform || undefined,
+          transitionDelay: shouldFadeOut ? `${index * 30}ms` : undefined,
         }}
       >
         <PostComponent
