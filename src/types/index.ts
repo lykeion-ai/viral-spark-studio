@@ -16,6 +16,7 @@ export interface SocialPost {
     name: string;
     handle: string;
     avatar: string;
+    title?: string;
   };
   content: {
     hook?: string;

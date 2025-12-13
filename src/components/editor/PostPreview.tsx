@@ -26,7 +26,8 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           <img src={pavleAvatar} alt="Pavle Padjin" className="w-12 h-12 rounded-full object-cover" />
           <div>
             <p className="font-semibold text-foreground">Pavle Padjin</p>
-            <p className="text-sm text-muted-foreground">Founder • Just now</p>
+            <p className="text-sm text-muted-foreground">Co-Founder Forsails</p>
+            <p className="text-xs text-muted-foreground">Just now</p>
           </div>
         </div>
 
@@ -75,6 +76,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
           <div className="flex-1">
             <div className="flex items-center gap-2">
               <p className="font-bold text-foreground">Pavle Padjin</p>
+              <span className="text-muted-foreground text-xs">Co-Founder Forsails</span>
               <p className="text-muted-foreground text-sm">@pavlepadjin • 1m</p>
             </div>
             
