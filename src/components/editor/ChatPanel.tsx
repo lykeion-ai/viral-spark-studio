@@ -28,7 +28,7 @@ export function ChatPanel({
   const [messages, setMessages] = useState<Message[]>([{
     id: '1',
     role: 'assistant',
-    content: 'Your viral posts are ready! 🎉 You can edit any part by typing @ followed by the section name. For example:\n\n• @hook - Edit the attention-grabbing opener\n• @body - Edit the main content\n• @outro - Edit the call-to-action\n• @image - Request a new image\n\nWhat would you like to change?'
+    content: 'Your viral posts are ready! 🎉 You can edit any part by typing the section name (@hook, @body, @outro, @image). What would you like to change?'
   }]);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
