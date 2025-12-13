@@ -1,24 +1,57 @@
-import { Sparkles, User } from 'lucide-react';
-export function Header() {
-  return <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-      <nav className="w-full py-4 flex justify-between items-center px-[14px] border">
-        <a href="/" className="flex items-center gap-2 text-xl font-bold text-foreground">
-          <Sparkles className="w-6 h-6 text-primary" />
-          Marketly
-        </a>
-        
-        
+import { User, Linkedin, Twitter } from 'lucide-react';
+import { useApp } from '@/contexts/AppContext';
+import { Platform } from '@/types';
+import instagramIcon from '@/assets/instagram-icon.png';
 
-        <div className="hidden md:flex items-center gap-8">
-          
-          
-          
+const platforms: { id: Platform; label: string; icon: React.ReactNode }[] = [
+  { id: 'linkedin', label: 'LinkedIn', icon: <Linkedin className="w-4 h-4" /> },
+  { id: 'twitter', label: 'X', icon: <Twitter className="w-4 h-4" /> },
+  { 
+    id: 'instagram', 
+    label: 'Instagram', 
+    icon: <img src={instagramIcon} alt="Instagram" className="w-4 h-4" />
+  },
+];
+
+export function Header() {
+  const { stage, activePlatform, setActivePlatform } = useApp();
+  const showTabs = stage === 'editor';
+
+  return (
+    <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="w-full py-2 flex justify-between items-center px-4">
+        {/* Left spacer */}
+        <div className="w-10" />
+
+        {/* Center - Platform Tabs (only in editor stage) */}
+        <div className="flex-1 flex justify-center">
+          {showTabs && (
+            <div className="flex gap-1">
+              {platforms.map((platform) => (
+                <button
+                  key={platform.id}
+                  onClick={() => setActivePlatform(platform.id)}
+                  className={`flex items-center gap-2 px-6 py-3 text-sm font-medium transition-all border-b-2 ${
+                    activePlatform === platform.id
+                      ? 'border-primary text-foreground'
+                      : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                  }`}
+                >
+                  {platform.icon}
+                  {platform.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Right - Account icon */}
         <div className="flex items-center gap-3">
           <button className="p-2 rounded-full hover:bg-muted transition-colors">
             <User className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
       </nav>
-    </header>;
+    </header>
+  );
 }
