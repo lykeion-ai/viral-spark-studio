@@ -312,7 +312,7 @@ export const instagramPosts: SocialPost[] = [
 
 export const generatedPosts = {
   linkedin: {
-    hook: "We made an AI content creation tool that just had an Inception moment.",
+    hook: "We made an AI content creation tool that is recursive.",
     body: "Your product won't sell itself, but we can make it 10x less painful to market it.\n\nWe generate viral posts about your product, brand and company. You can generate platform-native posts for Linkedin, Instagram and X in minutes.\n\nHow do you know it works? Well, you just read this post, didn't you? And guess who wrote it.",
     outro: "Read the first line again.",
     image: inceptionPostImage,
