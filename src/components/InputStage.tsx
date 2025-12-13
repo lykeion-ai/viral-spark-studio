@@ -104,6 +104,23 @@ export function InputStage() {
       startGeneration();
     }
   };
+
+  const togglePlatform = (platform: 'linkedin' | 'twitter' | 'instagram') => {
+    const current = productData.selectedPlatforms;
+    if (current.includes(platform)) {
+      if (current.length > 1) {
+        setProductData({
+          ...productData,
+          selectedPlatforms: current.filter(p => p !== platform),
+        });
+      }
+    } else {
+      setProductData({
+        ...productData,
+        selectedPlatforms: [...current, platform],
+      });
+    }
+  };
   const {
     displayText,
     platformIndex
@@ -129,6 +146,43 @@ export function InputStage() {
           <textarea value={productData.description} onChange={handleDescriptionChange} placeholder="Describe your product in 2-3 sentences... What makes it special? Who is it for?" className="w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground resize-none outline-none text-lg leading-relaxed min-h-[120px] pr-14" rows={4} />
           <button onClick={handleGenerate} disabled={!productData.description.trim()} className="absolute right-5 bottom-5 w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-primary-foreground hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105">
             <Send className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Platform Toggles */}
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => togglePlatform('linkedin')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+              productData.selectedPlatforms.includes('linkedin')
+                ? 'bg-[#0A66C2]/10 border-[#0A66C2] text-[#0A66C2]'
+                : 'border-border text-muted-foreground hover:border-muted-foreground'
+            }`}
+          >
+            <Linkedin className="w-4 h-4" />
+            <span className="text-sm font-medium">LinkedIn</span>
+          </button>
+          <button
+            onClick={() => togglePlatform('twitter')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+              productData.selectedPlatforms.includes('twitter')
+                ? 'bg-foreground/10 border-foreground text-foreground'
+                : 'border-border text-muted-foreground hover:border-muted-foreground'
+            }`}
+          >
+            <span className="font-bold text-sm">𝕏</span>
+            <span className="text-sm font-medium">X</span>
+          </button>
+          <button
+            onClick={() => togglePlatform('instagram')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+              productData.selectedPlatforms.includes('instagram')
+                ? 'bg-[#E4405F]/10 border-[#E4405F] text-[#E4405F]'
+                : 'border-border text-muted-foreground hover:border-muted-foreground'
+            }`}
+          >
+            <Instagram className="w-4 h-4" />
+            <span className="text-sm font-medium">Instagram</span>
           </button>
         </div>
 
