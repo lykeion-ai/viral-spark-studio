@@ -107,7 +107,7 @@ export function PostPreview({ highlight }: PostPreviewProps) {
   // Instagram
   const post = generatedContent.instagram;
   return (
-    <div className="bg-card rounded-xl border border-border overflow-hidden max-w-md mx-auto">
+    <div className="bg-card rounded-xl border border-border overflow-hidden">
       {/* Instagram Header */}
       <div className="p-3 flex items-center gap-3">
         <div className="p-0.5 rounded-full bg-gradient-to-tr from-instagram-orange to-instagram-pink">
