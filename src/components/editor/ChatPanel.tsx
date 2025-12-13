@@ -188,14 +188,14 @@ export function ChatPanel({ onHighlightChange }: ChatPanelProps) {
 
       {/* Input */}
       <div className="p-4 border-t border-border">
-        <div className="chat-input-wrapper !p-3">
+        <div className="chat-input-wrapper !p-3 w-full">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder="e.g. @hook make it more catchy"
-            className="flex-1 bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground pr-12"
+            className="flex-1 w-full bg-transparent border-none outline-none text-foreground placeholder:text-muted-foreground pr-12"
           />
           <button
             onClick={handleSend}
