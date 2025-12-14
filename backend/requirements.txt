@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-dotenv
+python-multipart
+pydantic
+pydantic-ai
+fal-client
+httpx
+aiofiles
+Pillow
+

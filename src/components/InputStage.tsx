@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Upload, X, Send, Linkedin, Instagram } from 'lucide-react';
+import { Upload, X, Send, Linkedin, Instagram, Loader2 } from 'lucide-react';
 import { useApp } from '@/contexts/AppContext';
 const platforms = [{
   name: 'LinkedIn',
@@ -52,7 +52,9 @@ export function InputStage() {
   const {
     productData,
     setProductData,
-    startGeneration
+    startGeneration,
+    isGenerating,
+    generationError
   } = useApp();
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,10 +102,12 @@ export function InputStage() {
     });
   };
   const handleGenerate = () => {
-    if (productData.description.trim()) {
+    if (productData.description.trim() && productData.images.length > 0 && !isGenerating) {
       startGeneration();
     }
   };
+
+  const canGenerate = productData.description.trim() && productData.images.length > 0 && !isGenerating;
 
   const togglePlatform = (platform: 'linkedin' | 'twitter' | 'instagram') => {
     const current = productData.selectedPlatforms;
@@ -143,11 +147,18 @@ export function InputStage() {
       <div className="space-y-6">
         {/* Main Input */}
         <div className="chat-input-wrapper">
-          <textarea value={productData.description} onChange={handleDescriptionChange} placeholder="Describe your product and the content of the post you want to generate." className="w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground resize-none outline-none text-lg leading-relaxed min-h-[120px] pr-14" rows={4} />
-          <button onClick={handleGenerate} disabled={!productData.description.trim()} className="absolute right-5 bottom-5 w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-primary-foreground hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105">
-            <Send className="w-5 h-5" />
+          <textarea value={productData.description} onChange={handleDescriptionChange} placeholder="Describe your product and the content of the post you want to generate." className="w-full bg-transparent border-none text-foreground placeholder:text-muted-foreground resize-none outline-none text-lg leading-relaxed min-h-[120px] pr-14" rows={4} disabled={isGenerating} />
+          <button onClick={handleGenerate} disabled={!canGenerate} className="absolute right-5 bottom-5 w-11 h-11 bg-primary rounded-xl flex items-center justify-center text-primary-foreground hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105">
+            {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
           </button>
         </div>
+
+        {/* Error Message */}
+        {generationError && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 text-destructive text-sm">
+            <strong>Error:</strong> {generationError}
+          </div>
+        )}
 
         {/* Platform Toggles */}
         <div className="flex items-center justify-center gap-3">
