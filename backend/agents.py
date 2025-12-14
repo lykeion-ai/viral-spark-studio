@@ -8,6 +8,7 @@ from functools import lru_cache
 from typing import List
 
 import fal_client
+from pydantic import BaseModel, Field
 from pydantic_ai import Agent
 from pydantic_ai.messages import ModelRequest, ModelResponse
 
@@ -20,6 +21,13 @@ from constants import (
     CONTENT_EDIT_SYSTEM_PROMPT,
     CONTENT_PART_EDIT_SYSTEM_PROMPT,
     IMAGE_PROMPT_SYSTEM_PROMPT,
+    RAG_INITIAL_LINKEDIN_PROMPT,
+    RAG_INITIAL_X_PROMPT,
+    RAG_INITIAL_INSTAGRAM_PROMPT,
+    RAG_FINAL_LINKEDIN_PROMPT,
+    RAG_FINAL_X_PROMPT,
+    RAG_FINAL_INSTAGRAM_PROMPT,
+    RAG_ENABLED,
     OUTPUT_VALIDATION_RETRIES,
     REQUEST_LIMIT,
     TOKEN_LIMIT,
@@ -98,11 +106,156 @@ def get_instagram_agent() -> Agent[AgentDeps, PlatformContent]:
     return create_instagram_agent()
 
 
-async def generate_all_platform_content(
+# ──────────────────────────────────────────────────────────────────────────────
+# RAG-Based Content Generation Agents (Initial Text Generation)
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+class InitialText(BaseModel):
+    """Initial text generated for retrieval."""
+    text: str = Field(description="Brief initial text capturing key themes")
+
+
+def create_rag_initial_linkedin_agent() -> Agent[AgentDeps, InitialText]:
+    """Create an agent for generating initial LinkedIn text for RAG retrieval."""
+    logger.info(f"Creating RAG initial LinkedIn agent with model: {MODEL}")
+    return Agent(
+        MODEL,
+        system_prompt=RAG_INITIAL_LINKEDIN_PROMPT,
+        deps_type=AgentDeps,
+        result_type=InitialText,
+        retries=OUTPUT_VALIDATION_RETRIES,
+    )
+
+
+def create_rag_initial_x_agent() -> Agent[AgentDeps, InitialText]:
+    """Create an agent for generating initial X text for RAG retrieval."""
+    logger.info(f"Creating RAG initial X agent with model: {MODEL}")
+    return Agent(
+        MODEL,
+        system_prompt=RAG_INITIAL_X_PROMPT,
+        deps_type=AgentDeps,
+        result_type=InitialText,
+        retries=OUTPUT_VALIDATION_RETRIES,
+    )
+
+
+def create_rag_initial_instagram_agent() -> Agent[AgentDeps, InitialText]:
+    """Create an agent for generating initial Instagram text for RAG retrieval."""
+    logger.info(f"Creating RAG initial Instagram agent with model: {MODEL}")
+    return Agent(
+        MODEL,
+        system_prompt=RAG_INITIAL_INSTAGRAM_PROMPT,
+        deps_type=AgentDeps,
+        result_type=InitialText,
+        retries=OUTPUT_VALIDATION_RETRIES,
+    )
+
+
+@lru_cache(maxsize=1)
+def get_rag_initial_linkedin_agent() -> Agent[AgentDeps, InitialText]:
+    """Return a singleton agent for initial LinkedIn text generation."""
+    logger.debug("Getting RAG initial LinkedIn agent (cached)")
+    return create_rag_initial_linkedin_agent()
+
+
+@lru_cache(maxsize=1)
+def get_rag_initial_x_agent() -> Agent[AgentDeps, InitialText]:
+    """Return a singleton agent for initial X text generation."""
+    logger.debug("Getting RAG initial X agent (cached)")
+    return create_rag_initial_x_agent()
+
+
+@lru_cache(maxsize=1)
+def get_rag_initial_instagram_agent() -> Agent[AgentDeps, InitialText]:
+    """Return a singleton agent for initial Instagram text generation."""
+    logger.debug("Getting RAG initial Instagram agent (cached)")
+    return create_rag_initial_instagram_agent()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# RAG-Based Content Generation Agents (Final Generation with Retrieved Examples)
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def create_rag_final_linkedin_agent() -> Agent[AgentDeps, PlatformContent]:
+    """Create an agent for generating final LinkedIn content with RAG examples."""
+    logger.info(f"Creating RAG final LinkedIn agent with model: {MODEL}")
+    return Agent(
+        MODEL,
+        system_prompt=RAG_FINAL_LINKEDIN_PROMPT,
+        deps_type=AgentDeps,
+        result_type=PlatformContent,
+        retries=OUTPUT_VALIDATION_RETRIES,
+    )
+
+
+def create_rag_final_x_agent() -> Agent[AgentDeps, PlatformContent]:
+    """Create an agent for generating final X content with RAG examples."""
+    logger.info(f"Creating RAG final X agent with model: {MODEL}")
+    return Agent(
+        MODEL,
+        system_prompt=RAG_FINAL_X_PROMPT,
+        deps_type=AgentDeps,
+        result_type=PlatformContent,
+        retries=OUTPUT_VALIDATION_RETRIES,
+    )
+
+
+def create_rag_final_instagram_agent() -> Agent[AgentDeps, PlatformContent]:
+    """Create an agent for generating final Instagram content with RAG examples."""
+    logger.info(f"Creating RAG final Instagram agent with model: {MODEL}")
+    return Agent(
+        MODEL,
+        system_prompt=RAG_FINAL_INSTAGRAM_PROMPT,
+        deps_type=AgentDeps,
+        result_type=PlatformContent,
+        retries=OUTPUT_VALIDATION_RETRIES,
+    )
+
+
+@lru_cache(maxsize=1)
+def get_rag_final_linkedin_agent() -> Agent[AgentDeps, PlatformContent]:
+    """Return a singleton agent for final LinkedIn content generation."""
+    logger.debug("Getting RAG final LinkedIn agent (cached)")
+    return create_rag_final_linkedin_agent()
+
+
+@lru_cache(maxsize=1)
+def get_rag_final_x_agent() -> Agent[AgentDeps, PlatformContent]:
+    """Return a singleton agent for final X content generation."""
+    logger.debug("Getting RAG final X agent (cached)")
+    return create_rag_final_x_agent()
+
+
+@lru_cache(maxsize=1)
+def get_rag_final_instagram_agent() -> Agent[AgentDeps, PlatformContent]:
+    """Return a singleton agent for final Instagram content generation."""
+    logger.debug("Getting RAG final Instagram agent (cached)")
+    return create_rag_final_instagram_agent()
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# RAG Helper Functions
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+async def generate_initial_text_for_retrieval(
     prompt: str,
+    platform: str,
     deps: AgentDeps,
-) -> GeneratedContent:
-    """Generate content for all platforms using 3 separate API calls in parallel."""
+) -> str:
+    """
+    Generate initial text that will be used for retrieval from Qdrant.
+    
+    Args:
+        prompt: User's input prompt
+        platform: Target platform (linkedin, x, instagram)
+        deps: Agent dependencies
+    
+    Returns:
+        Initial text for retrieval
+    """
     from pydantic_ai.usage import UsageLimits
     
     limits = UsageLimits(
@@ -110,36 +263,177 @@ async def generate_all_platform_content(
         total_tokens_limit=TOKEN_LIMIT
     )
     
-    linkedin_agent = get_linkedin_agent()
-    x_agent = get_x_agent()
-    instagram_agent = get_instagram_agent()
+    logger.info(f"Generating initial {platform} text for retrieval...")
     
-    logger.info("Starting parallel content generation for all platforms...")
-    
-    # Run all 3 API calls in parallel
-    linkedin_task = linkedin_agent.run(prompt, deps=deps, usage_limits=limits)
-    x_task = x_agent.run(prompt, deps=deps, usage_limits=limits)
-    instagram_task = instagram_agent.run(prompt, deps=deps, usage_limits=limits)
+    # Select the appropriate initial agent
+    if platform == "linkedin":
+        agent = get_rag_initial_linkedin_agent()
+    elif platform == "x":
+        agent = get_rag_initial_x_agent()
+    elif platform == "instagram":
+        agent = get_rag_initial_instagram_agent()
+    else:
+        raise ValueError(f"Unknown platform: {platform}")
     
     try:
-        linkedin_result, x_result, instagram_result = await asyncio.gather(
-            linkedin_task,
-            x_task,
-            instagram_task,
-        )
-        
-        logger.info(f"LinkedIn content generated. Usage: {linkedin_result.usage()}")
-        logger.info(f"X content generated. Usage: {x_result.usage()}")
-        logger.info(f"Instagram content generated. Usage: {instagram_result.usage()}")
-        
-        return GeneratedContent(
-            linkedin=linkedin_result.data,
-            x=x_result.data,
-            instagram=instagram_result.data,
-        )
+        result = await agent.run(prompt, deps=deps, usage_limits=limits)
+        initial_text = result.data.text
+        logger.info(f"Initial {platform} text generated: {initial_text[:100]}...")
+        return initial_text
     except Exception as e:
-        logger.error(f"Content generation failed: {e}", exc_info=True)
+        logger.error(f"Failed to generate initial {platform} text: {e}", exc_info=True)
+        # Fallback to user prompt if initial generation fails
+        return prompt
+
+
+async def retrieve_and_generate_content(
+    prompt: str,
+    platform: str,
+    deps: AgentDeps,
+    num_examples: int = 3,
+) -> PlatformContent:
+    """
+    RAG-based content generation: generate initial text, retrieve similar posts, 
+    then generate final content with examples.
+    
+    Args:
+        prompt: User's input prompt
+        platform: Target platform (linkedin, x, instagram)
+        deps: Agent dependencies
+        num_examples: Number of similar posts to retrieve
+    
+    Returns:
+        Final generated platform content
+    """
+    from pydantic_ai.usage import UsageLimits
+    from qdrant_client_helper import retrieve_similar_posts
+    
+    limits = UsageLimits(
+        request_limit=REQUEST_LIMIT,
+        total_tokens_limit=TOKEN_LIMIT
+    )
+    
+    logger.info(f"Starting RAG-based generation for {platform}...")
+    
+    # Step 1: Generate initial text for retrieval
+    initial_text = await generate_initial_text_for_retrieval(prompt, platform, deps)
+    
+    # Step 2: Retrieve similar posts from Qdrant
+    logger.info(f"Retrieving similar {platform} posts from Qdrant...")
+    similar_posts = await retrieve_similar_posts(
+        query_text=initial_text,
+        platform=platform,
+        limit=num_examples
+    )
+    
+    # Step 3: Build enhanced prompt with retrieved examples
+    enhanced_prompt = prompt
+    if similar_posts:
+        logger.info(f"Found {len(similar_posts)} similar posts, adding to prompt")
+        examples_text = "\n\n--- SIMILAR HIGH-PERFORMING POSTS FOR INSPIRATION ---\n\n"
+        for i, post in enumerate(similar_posts, 1):
+            examples_text += f"Example {i}:\n{post}\n\n"
+        examples_text += "--- END OF EXAMPLES ---\n\n"
+        examples_text += "Now create an original post based on the user's requirements, using these examples for inspiration on style and structure.\n\n"
+        enhanced_prompt = examples_text + prompt
+    else:
+        logger.warning(f"No similar posts found for {platform}, generating without RAG")
+    
+    # Step 4: Generate final content with RAG examples
+    if platform == "linkedin":
+        agent = get_rag_final_linkedin_agent()
+    elif platform == "x":
+        agent = get_rag_final_x_agent()
+    elif platform == "instagram":
+        agent = get_rag_final_instagram_agent()
+    else:
+        raise ValueError(f"Unknown platform: {platform}")
+    
+    try:
+        logger.info(f"Generating final {platform} content with RAG examples...")
+        result = await agent.run(enhanced_prompt, deps=deps, usage_limits=limits)
+        logger.info(f"RAG-based {platform} content generated successfully")
+        return result.data
+    except Exception as e:
+        logger.error(f"Failed to generate final {platform} content: {e}", exc_info=True)
         raise
+
+
+async def generate_all_platform_content(
+    prompt: str,
+    deps: AgentDeps,
+) -> GeneratedContent:
+    """
+    Generate content for all platforms using 3 separate API calls in parallel.
+    If RAG is enabled, uses retrieval-augmented generation workflow.
+    """
+    from pydantic_ai.usage import UsageLimits
+    
+    limits = UsageLimits(
+        request_limit=REQUEST_LIMIT,
+        total_tokens_limit=TOKEN_LIMIT
+    )
+    
+    logger.info(f"Starting content generation for all platforms (RAG: {'ENABLED' if RAG_ENABLED else 'DISABLED'})...")
+    
+    if RAG_ENABLED:
+        # Use RAG-based generation
+        logger.info("Using RAG-based content generation workflow")
+        
+        # Run all 3 RAG workflows in parallel
+        linkedin_task = retrieve_and_generate_content(prompt, "linkedin", deps)
+        x_task = retrieve_and_generate_content(prompt, "x", deps)
+        instagram_task = retrieve_and_generate_content(prompt, "instagram", deps)
+        
+        try:
+            linkedin_content, x_content, instagram_content = await asyncio.gather(
+                linkedin_task,
+                x_task,
+                instagram_task,
+            )
+            
+            logger.info("All platforms generated successfully with RAG")
+            
+            return GeneratedContent(
+                linkedin=linkedin_content,
+                x=x_content,
+                instagram=instagram_content,
+            )
+        except Exception as e:
+            logger.error(f"RAG-based content generation failed: {e}", exc_info=True)
+            raise
+    else:
+        # Use traditional generation without RAG
+        logger.info("Using traditional content generation (without RAG)")
+        
+        linkedin_agent = get_linkedin_agent()
+        x_agent = get_x_agent()
+        instagram_agent = get_instagram_agent()
+        
+        # Run all 3 API calls in parallel
+        linkedin_task = linkedin_agent.run(prompt, deps=deps, usage_limits=limits)
+        x_task = x_agent.run(prompt, deps=deps, usage_limits=limits)
+        instagram_task = instagram_agent.run(prompt, deps=deps, usage_limits=limits)
+        
+        try:
+            linkedin_result, x_result, instagram_result = await asyncio.gather(
+                linkedin_task,
+                x_task,
+                instagram_task,
+            )
+            
+            logger.info(f"LinkedIn content generated. Usage: {linkedin_result.usage()}")
+            logger.info(f"X content generated. Usage: {x_result.usage()}")
+            logger.info(f"Instagram content generated. Usage: {instagram_result.usage()}")
+            
+            return GeneratedContent(
+                linkedin=linkedin_result.data,
+                x=x_result.data,
+                instagram=instagram_result.data,
+            )
+        except Exception as e:
+            logger.error(f"Content generation failed: {e}", exc_info=True)
+            raise
 
 
 # ──────────────────────────────────────────────────────────────────────────────
