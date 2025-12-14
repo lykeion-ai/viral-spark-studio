@@ -8,4 +8,5 @@ fal-client
 httpx
 aiofiles
 Pillow
+qdrant-client
 
